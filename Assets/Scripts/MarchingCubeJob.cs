@@ -106,13 +106,13 @@ struct Cube : IEnumerable<float4>
     }
 }
 
-// [BurstCompile]
+[BurstCompile]
 public struct MarchingCubesJob : IJobParallelFor
 {
     public float surfaceLevel;
     public int size;
-    public float3 position;
     public float scale;
+    public int3 position;
 
     [NativeDisableParallelForRestriction]
     public NativeArray<Triangle> triangles;
@@ -132,8 +132,9 @@ public struct MarchingCubesJob : IJobParallelFor
 
         for (int i = 0; i < 8; i++)
         {
-            float3 realCoords = position + (float3)(new int3(x, y, z) + LUT.cornerCoords[i]) * scale;
-            cube[i] = new float4(realCoords, noise(realCoords));
+            int3 intCoords = new int3(x, y, z) + LUT.cornerCoords[i];
+            float3 realCoords = (float3)(intCoords)*scale;
+            cube[i] = new float4(realCoords, noise(intCoords));
             if (cube[i].w < surfaceLevel)
             {
                 cubeIdx |= 1 << i;
@@ -184,8 +185,8 @@ public struct MarchingCubesJob : IJobParallelFor
         return LUT.triTable[a * 16 + b];
     }
 
-    float noise(float3 pos) // TODO: use noise from outside source, passed as parameter to this job
+    float noise(int3 pos) // TODO: use noise from outside source, passed as parameter to this job
     {
-        return -pos.y;
+        return -(float)pos.y;
     }
 }
