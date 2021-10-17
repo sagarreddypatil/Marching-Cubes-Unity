@@ -15,7 +15,11 @@ public struct MarchingCubesJob : IJobParallelFor
     public int3 position;
 
     [NativeDisableParallelForRestriction]
+    [WriteOnly]
     public NativeArray<Triangle> triangles;
+
+    [ReadOnly]
+    public NativeArray<float> voxels;
 
     public void Execute(int idx)
     {
@@ -34,7 +38,7 @@ public struct MarchingCubesJob : IJobParallelFor
         {
             int3 intCoords = new int3(x, y, z) + LUT.cornerCoords[i];
             float3 realCoords = (float3)(intCoords)*scale;
-            cube[i] = new float4(realCoords, noise(intCoords));
+            cube[i] = new float4(realCoords, getNoise(intCoords));
             if (cube[i].w < surfaceLevel)
             {
                 cubeIdx |= 1 << i;
@@ -85,8 +89,11 @@ public struct MarchingCubesJob : IJobParallelFor
         return LUT.triTable[a * 16 + b];
     }
 
-    float noise(int3 pos) // TODO: use noise from outside source, passed as parameter to this job
+    float getNoise(int3 pos) // TODO: use noise from outside source, passed as parameter to this job
     {
-        return -(float)pos.y;
+        int voxelSize = size + 1;
+        return voxels[pos.x + pos.y * voxelSize + pos.z * voxelSize * voxelSize];
+
+        // return -(float)pos.y + noise.snoise((float3)pos);
     }
 }

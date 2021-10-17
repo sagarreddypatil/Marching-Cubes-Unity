@@ -15,16 +15,20 @@ public static class NoisePostProcess
 }
 
 [BurstCompile]
-public struct fBMNoiseJob : IJobParallelFor
+public struct FractalNoiseJob : IJobParallelFor
 {
-    float3 position;
-    float scale;
+    public float3 position;
+    public float scale;
 
-    int size;
-    int octaves;
-    float dimension;
-    float lacunarity;
+    public float noiseScale;
 
+    public int size;
+    public int octaves;
+    public float dimension;
+    public float lacunarity;
+
+    [NativeDisableParallelForRestriction]
+    [WriteOnly]
     public NativeArray<float> noiseValues;
 
     public void Execute(int idx)
@@ -38,12 +42,12 @@ public struct fBMNoiseJob : IJobParallelFor
         int z = tmpIdx % size;
 
         var intPos = new int3(x, y, z);
-        float3 pos = position + (float3)intPos * scale;
+        float3 pos = position + (float3)intPos * scale * noiseScale;
 
         float output = 0;
         for (int i = 0; i < octaves; i++)
         {
-            output += noise.cnoise(pos / math.max(1f, lacunarity * i)) * (1 - dimension * i);
+            output += noise.cnoise(pos * math.max(1f, lacunarity * i)) * (1 / (math.max(1f, dimension * i)));
         }
 
         noiseValues[idx] = NoisePostProcess.HorizontalLandscape(pos, output);

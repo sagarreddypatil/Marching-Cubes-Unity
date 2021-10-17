@@ -228,6 +228,7 @@ GameObject:
   - component: {fileID: 919979080}
   - component: {fileID: 919979081}
   - component: {fileID: 919979082}
+  - component: {fileID: 919979083}
   m_Layer: 0
   m_Name: Chunk
   m_TagString: Untagged
@@ -311,10 +312,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc1d9ec2784facd21995c337b15e3a7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: 32
-  scale: 0.625
-  surfaceLevel: 0
+  size: 64
+  scale: 0.25
+  surfaceLevel: -1
   generate: 0
+--- !u!114 &919979083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919979078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c34ca23e8e9d3234da3f4f0b96317319, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  octaves: 16
+  dimension: 2
+  lacunarity: 2
+  noiseScale: 0.5
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0

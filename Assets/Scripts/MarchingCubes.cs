@@ -20,8 +20,12 @@ public class MarchingCubes : MonoBehaviour
     public bool generate = false;
     private NativeArray<Triangle> triangleData;
 
+    private NoiseGeneration noiseGeneration;
+
     void Start()
     {
+        noiseGeneration = GetComponent<NoiseGeneration>();
+
         Initialize();
         StartCoroutine("MeshGenerationCoroutine");
         generate = true;
@@ -42,13 +46,13 @@ public class MarchingCubes : MonoBehaviour
         if (triangleData == null || !triangleData.IsCreated)
         {
             AllocateTriangleData();
-            allocatedSize = size;
         }
     }
 
     void AllocateTriangleData()
     {
         triangleData = new NativeArray<Triangle>(size * size * size * 5, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        allocatedSize = size;
     }
 
     void DisposeTriangleData()
@@ -88,8 +92,11 @@ public class MarchingCubes : MonoBehaviour
     {
         if (Application.isPlaying)
         {
-            DisposeTriangleData();
-            AllocateTriangleData();
+            if (size != allocatedSize)
+            {
+                DisposeTriangleData();
+                AllocateTriangleData();
+            }
         }
     }
 
@@ -100,13 +107,16 @@ public class MarchingCubes : MonoBehaviour
             AllocateTriangleData();
         }
 
-        var job = new MarchingCubesJob { surfaceLevel = surfaceLevel,
-                                         size = size,
-                                         scale = scale,
-                                         position = int3.zero,
-                                         triangles = triangleData };
+        var job = new MarchingCubesJob {
+            surfaceLevel = surfaceLevel,
+            size = size,
+            scale = scale,
+            position = int3.zero,
+            triangles = triangleData,
+            voxels = noiseGeneration.voxelData
+        };
 
-        var handle = job.Schedule(size * size * size, 1);
+        var handle = job.Schedule(size * size * size, 1, noiseGeneration.currentJobHandle);
         handle.Complete();
 
         var trianglesArray = triangleData.ToArray();
