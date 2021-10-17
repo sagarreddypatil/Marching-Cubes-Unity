@@ -1,12 +1,10 @@
 using System;
-using UnityEngine;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Burst;
 using System.Collections.Generic;
 using Unity.Collections;
 using System.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 
 public struct Triangle
 {
