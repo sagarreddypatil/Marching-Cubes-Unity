@@ -18,7 +18,7 @@ public class MarchingCubes : MonoBehaviour
     private Mesh mesh;
 
     public bool generate = false;
-    private NativeArray<Triangle> jobResult;
+    private NativeArray<Triangle> triangleData;
 
     void Start()
     {
@@ -39,29 +39,30 @@ public class MarchingCubes : MonoBehaviour
             meshFilter.sharedMesh = mesh;
         }
 
-        if (jobResult == null || !jobResult.IsCreated)
+        if (triangleData == null || !triangleData.IsCreated)
         {
-            AllocateJobResult();
+            AllocateTriangleData();
             allocatedSize = size;
         }
     }
 
-    void AllocateJobResult()
+    void AllocateTriangleData()
     {
-        jobResult = new NativeArray<Triangle>(size * size * size * 5, Allocator.Persistent, NativeArrayOptions.ClearMemory);
+        triangleData = new NativeArray<Triangle>(size * size * size * 5, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
     }
-    void DisposeJobResult()
+
+    void DisposeTriangleData()
     {
-        jobResult.Dispose();
-        jobResult = default;
+        if (triangleData != null)
+        {
+            triangleData.Dispose();
+        }
+        triangleData = default;
     }
 
     void OnDestroy()
     {
-        if (jobResult != null)
-        {
-            DisposeJobResult();
-        }
+        DisposeTriangleData();
     }
 
     IEnumerator MeshGenerationCoroutine()
@@ -87,49 +88,49 @@ public class MarchingCubes : MonoBehaviour
     {
         if (Application.isPlaying)
         {
-            DisposeJobResult();
-            AllocateJobResult();
+            DisposeTriangleData();
+            AllocateTriangleData();
         }
     }
 
     void GenerateMesh()
     {
-        if (!jobResult.IsCreated)
+        if (!triangleData.IsCreated)
         {
-            AllocateJobResult();
+            AllocateTriangleData();
         }
 
         var job = new MarchingCubesJob { surfaceLevel = surfaceLevel,
                                          size = size,
                                          scale = scale,
                                          position = int3.zero,
-                                         triangles = jobResult };
+                                         triangles = triangleData };
 
         var handle = job.Schedule(size * size * size, 1);
         handle.Complete();
 
-        var triangleStructs = jobResult.ToArray();
+        var trianglesArray = triangleData.ToArray();
 
-        var vertices = new List<Vector3>();
-        var triangles = new List<int>();
+        var meshVertices = new List<Vector3>();
+        var meshTriangles = new List<int>();
 
-        for (int i = 0; i < triangleStructs.Length; i++)
+        for (int i = 0; i < trianglesArray.Length; i++)
         {
-            if (triangleStructs[i].created)
+            if (trianglesArray[i].created)
             {
-                vertices.Add(triangleStructs[i].a);
-                triangles.Add(vertices.Count - 1);
+                meshVertices.Add(trianglesArray[i].a);
+                meshTriangles.Add(meshVertices.Count - 1);
 
-                vertices.Add(triangleStructs[i].b);
-                triangles.Add(vertices.Count - 1);
+                meshVertices.Add(trianglesArray[i].b);
+                meshTriangles.Add(meshVertices.Count - 1);
 
-                vertices.Add(triangleStructs[i].c);
-                triangles.Add(vertices.Count - 1);
+                meshVertices.Add(trianglesArray[i].c);
+                meshTriangles.Add(meshVertices.Count - 1);
             }
         }
 
-        mesh.vertices = vertices.ToArray();
-        mesh.triangles = triangles.ToArray();
+        mesh.vertices = meshVertices.ToArray();
+        mesh.triangles = meshTriangles.ToArray();
         mesh.RecalculateNormals();
     }
 

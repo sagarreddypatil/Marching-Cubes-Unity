@@ -31,16 +31,14 @@ public struct fBMNoiseJob : IJobParallelFor
     {
         int tmpIdx = idx;
 
-        int w = tmpIdx % 8;
-        tmpIdx /= 8;
         int x = tmpIdx % size;
         tmpIdx /= size;
         int y = tmpIdx % size;
         tmpIdx /= size;
         int z = tmpIdx % size;
 
-        var intPos = new int4(x, y, z, w);
-        float3 pos = position + (float3)(intPos.xyz + LUT.cornerCoords[w]) * scale;
+        var intPos = new int3(x, y, z);
+        float3 pos = position + (float3)intPos * scale;
 
         float output = 0;
         for (int i = 0; i < octaves; i++)
