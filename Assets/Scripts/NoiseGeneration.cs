@@ -15,9 +15,7 @@ public class NoiseGeneration : MonoBehaviour
     [Range(0f, 4f)]
     public float lacunarity = 2f;
     [Range(0, 4f)]
-    public float noiseScale = 0.25f;
-
-    private int allocatedSize;
+    public float scale = 0.25f;
 
     [HideInInspector]
     public NativeArray<float> voxelData;
@@ -26,9 +24,9 @@ public class NoiseGeneration : MonoBehaviour
     [HideInInspector]
     public JobHandle currentJobHandle;
 
-    bool generate = true;
+    private bool init = false;
 
-    void Start()
+    void Awake()
     {
         marchingCubes = GetComponent<MarchingCubes>();
         if (voxelData == null || !voxelData.IsCreated)
@@ -37,14 +35,13 @@ public class NoiseGeneration : MonoBehaviour
         }
         GenerateVoxels();
 
-        StartCoroutine("VoxelGenerationCoroutine");
+        init = true;
     }
 
     void AllocateVoxelData()
     {
         int voxelSize = marchingCubes.size + 1;
         voxelData = new NativeArray<float>(voxelSize * voxelSize * voxelSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-        allocatedSize = marchingCubes.size;
     }
 
     void DisposeVoxelData()
@@ -61,39 +58,22 @@ public class NoiseGeneration : MonoBehaviour
         DisposeVoxelData();
     }
 
-    void OnValidate()
+    public void ReallocateVoxelData()
     {
-        if (Application.isPlaying)
+        DisposeVoxelData();
+        AllocateVoxelData();
+        GenerateVoxels();
+    }
+
+    public void OnValidate()
+    {
+        if (init && Application.isPlaying)
         {
-            if (marchingCubes.size != allocatedSize)
-            {
-                DisposeVoxelData();
-                AllocateVoxelData();
-            }
-            generate = true;
+            GenerateVoxels();
         }
     }
 
-    IEnumerator VoxelGenerationCoroutine()
-    {
-        while (true)
-        {
-            if (generate)
-            {
-                try
-                {
-                    GenerateVoxels();
-                    // generate = false;
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError(e.Message);
-                }
-            }
-            yield return new WaitForSecondsRealtime(1f / 30);
-        }
-    }
-    void GenerateVoxels()
+    public void GenerateVoxels()
     {
         if (!voxelData.IsCreated)
         {
@@ -102,9 +82,9 @@ public class NoiseGeneration : MonoBehaviour
 
         int voxelSize = marchingCubes.size + 1;
         var job = new FractalNoiseJob {
-            position = transform.position,
-            scale = marchingCubes.scale,
-            noiseScale = noiseScale,
+            position = transform.localPosition,
+            meshScale = marchingCubes.scale,
+            scale = scale,
             size = voxelSize,
             octaves = octaves,
             dimension = dimension,
@@ -112,7 +92,7 @@ public class NoiseGeneration : MonoBehaviour
             noiseValues = voxelData
         };
 
-        var handle = job.Schedule(voxelSize * voxelSize * voxelSize, 1);
+        var handle = job.Schedule(voxelSize * voxelSize * voxelSize, 8);
         currentJobHandle = handle;
         handle.Complete();
     }

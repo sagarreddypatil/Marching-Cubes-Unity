@@ -9,7 +9,6 @@ using Unity.Jobs;
 public class MarchingCubes : MonoBehaviour
 {
     public int size = 16;
-    private int allocatedSize;
 
     public float scale = 0.1f;
     public float surfaceLevel = 0f;
@@ -22,13 +21,16 @@ public class MarchingCubes : MonoBehaviour
 
     private NoiseGeneration noiseGeneration;
 
-    void Start()
+    private bool init = false;
+
+    void Awake()
     {
         noiseGeneration = GetComponent<NoiseGeneration>();
 
         Initialize();
         StartCoroutine("MeshGenerationCoroutine");
-        generate = true;
+
+        init = true;
     }
 
     void Initialize()
@@ -52,7 +54,6 @@ public class MarchingCubes : MonoBehaviour
     void AllocateTriangleData()
     {
         triangleData = new NativeArray<Triangle>(size * size * size * 5, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-        allocatedSize = size;
     }
 
     void DisposeTriangleData()
@@ -78,6 +79,7 @@ public class MarchingCubes : MonoBehaviour
                 try
                 {
                     GenerateMesh();
+                    generate = false;
                 }
                 catch (Exception e)
                 {
@@ -88,19 +90,19 @@ public class MarchingCubes : MonoBehaviour
         }
     }
 
-    void OnValidate()
+    public void OnValidate()
     {
-        if (Application.isPlaying)
+        if (init && Application.isPlaying)
         {
-            if (size != allocatedSize)
-            {
-                DisposeTriangleData();
-                AllocateTriangleData();
-            }
+            noiseGeneration.ReallocateVoxelData();
+            DisposeTriangleData();
+            AllocateTriangleData();
+
+            generate = true;
         }
     }
 
-    void GenerateMesh()
+    public void GenerateMesh()
     {
         if (!triangleData.IsCreated)
         {

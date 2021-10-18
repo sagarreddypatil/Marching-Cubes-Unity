@@ -12,15 +12,19 @@ public static class NoisePostProcess
     {
         return -pos.y + val;
     }
+
+    public static float Planet(float3 pos, float val, float radius)
+    {
+        return radius - math.length(pos) + val * 0.1f;
+    }
 }
 
 [BurstCompile]
 public struct FractalNoiseJob : IJobParallelFor
 {
     public float3 position;
+    public float meshScale;
     public float scale;
-
-    public float noiseScale;
 
     public int size;
     public int octaves;
@@ -42,7 +46,7 @@ public struct FractalNoiseJob : IJobParallelFor
         int z = tmpIdx % size;
 
         var intPos = new int3(x, y, z);
-        float3 pos = position + (float3)intPos * scale * noiseScale;
+        float3 pos = (position + (float3)intPos * meshScale) * scale;
 
         float output = 0;
         for (int i = 0; i < octaves; i++)
@@ -50,6 +54,6 @@ public struct FractalNoiseJob : IJobParallelFor
             output += noise.cnoise(pos * math.max(1f, lacunarity * i)) * (1 / (math.max(1f, dimension * i)));
         }
 
-        noiseValues[idx] = NoisePostProcess.HorizontalLandscape(pos, output);
+        noiseValues[idx] = NoisePostProcess.Planet(pos, output, 4f * scale);
     }
 }
