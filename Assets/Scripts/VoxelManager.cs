@@ -6,7 +6,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class NoiseGeneration : MonoBehaviour
+public class VoxelManager : MonoBehaviour
 {
     [Range(1, 16)]
     public int octaves = 8;
@@ -19,28 +19,29 @@ public class NoiseGeneration : MonoBehaviour
 
     [HideInInspector]
     public NativeArray<float> voxelData;
-    private MarchingCubes marchingCubes;
-
-    [HideInInspector]
-    public JobHandle currentJobHandle;
-
-    private bool init = false;
+    private MeshManager meshManager;
 
     void Awake()
     {
-        marchingCubes = GetComponent<MarchingCubes>();
+        meshManager = GetComponent<MeshManager>();
+    }
+
+    void OnEnable()
+    {
         if (voxelData == null || !voxelData.IsCreated)
         {
             AllocateVoxelData();
         }
-        GenerateVoxels();
+    }
 
-        init = true;
+    void OnDisable()
+    {
+        DisposeVoxelData();
     }
 
     void AllocateVoxelData()
     {
-        int voxelSize = marchingCubes.size + 1;
+        int voxelSize = meshManager.size + 1;
         voxelData = new NativeArray<float>(voxelSize * voxelSize * voxelSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
     }
 
@@ -53,37 +54,23 @@ public class NoiseGeneration : MonoBehaviour
         voxelData = default;
     }
 
-    void OnDestroy()
-    {
-        DisposeVoxelData();
-    }
-
     public void ReallocateVoxelData()
     {
         DisposeVoxelData();
         AllocateVoxelData();
-        GenerateVoxels();
     }
 
-    public void OnValidate()
-    {
-        if (init && Application.isPlaying)
-        {
-            GenerateVoxels();
-        }
-    }
-
-    public void GenerateVoxels()
+    public JobHandle GenerateVoxels()
     {
         if (!voxelData.IsCreated)
         {
             AllocateVoxelData();
         }
 
-        int voxelSize = marchingCubes.size + 1;
+        int voxelSize = meshManager.size + 1;
         var job = new FractalNoiseJob {
             position = transform.localPosition,
-            meshScale = marchingCubes.scale,
+            meshScale = meshManager.scale,
             scale = scale,
             size = voxelSize,
             octaves = octaves,
@@ -93,11 +80,6 @@ public class NoiseGeneration : MonoBehaviour
         };
 
         var handle = job.Schedule(voxelSize * voxelSize * voxelSize, 8);
-        currentJobHandle = handle;
-        handle.Complete();
-    }
-
-    void Update()
-    {
+        return handle;
     }
 }

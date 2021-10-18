@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Jobs;
 
-public class MarchingCubes : MonoBehaviour
+public class MeshManager : MonoBehaviour
 {
     public int size = 16;
 
@@ -16,25 +16,13 @@ public class MarchingCubes : MonoBehaviour
     private MeshFilter meshFilter;
     private Mesh mesh;
 
-    public bool generate = false;
     private NativeArray<Triangle> triangleData;
 
-    private NoiseGeneration noiseGeneration;
-
-    private bool init = false;
+    private VoxelManager voxelManager;
 
     void Awake()
     {
-        noiseGeneration = GetComponent<NoiseGeneration>();
-
-        Initialize();
-        StartCoroutine("MeshGenerationCoroutine");
-
-        init = true;
-    }
-
-    void Initialize()
-    {
+        voxelManager = GetComponent<VoxelManager>();
         if (meshFilter == null)
         {
             meshFilter = GetComponent<MeshFilter>();
@@ -44,11 +32,19 @@ public class MarchingCubes : MonoBehaviour
 
             meshFilter.sharedMesh = mesh;
         }
+    }
 
+    void OnEnable()
+    {
         if (triangleData == null || !triangleData.IsCreated)
         {
             AllocateTriangleData();
         }
+    }
+
+    void OnDisable()
+    {
+        DisposeTriangleData();
     }
 
     void AllocateTriangleData()
@@ -65,44 +61,7 @@ public class MarchingCubes : MonoBehaviour
         triangleData = default;
     }
 
-    void OnDestroy()
-    {
-        DisposeTriangleData();
-    }
-
-    IEnumerator MeshGenerationCoroutine()
-    {
-        while (true)
-        {
-            if (generate)
-            {
-                try
-                {
-                    GenerateMesh();
-                    generate = false;
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError(e.Message);
-                }
-            }
-            yield return new WaitForSecondsRealtime(1f / 30);
-        }
-    }
-
-    public void OnValidate()
-    {
-        if (init && Application.isPlaying)
-        {
-            noiseGeneration.ReallocateVoxelData();
-            DisposeTriangleData();
-            AllocateTriangleData();
-
-            generate = true;
-        }
-    }
-
-    public void GenerateMesh()
+    public JobHandle GenerateTriangles(JobHandle dependsOn = default)
     {
         if (!triangleData.IsCreated)
         {
@@ -115,12 +74,15 @@ public class MarchingCubes : MonoBehaviour
             scale = scale,
             position = int3.zero,
             triangles = triangleData,
-            voxels = noiseGeneration.voxelData
+            voxels = voxelManager.voxelData
         };
 
-        var handle = job.Schedule(size * size * size, 1, noiseGeneration.currentJobHandle);
-        handle.Complete();
+        var handle = job.Schedule(size * size * size, 1, dependsOn);
+        return handle;
+    }
 
+    public void ConstructMesh()
+    {
         var trianglesArray = triangleData.ToArray();
 
         var meshVertices = new List<Vector3>();
@@ -144,10 +106,5 @@ public class MarchingCubes : MonoBehaviour
         mesh.vertices = meshVertices.ToArray();
         mesh.triangles = meshTriangles.ToArray();
         mesh.RecalculateNormals();
-    }
-
-    void Update()
-    {
-        // GenerateMesh();
     }
 }

@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 145728962881683196}
   - component: {fileID: 145728962881683199}
   - component: {fileID: 145728962881683198}
+  - component: {fileID: 5637924635286943240}
   m_Layer: 0
   m_Name: Chunk
   m_TagString: Untagged
@@ -96,10 +97,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc1d9ec2784facd21995c337b15e3a7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: 32
-  scale: 0.25
-  surfaceLevel: -1
-  generate: 0
+  size: 16
+  scale: 0.0625
+  surfaceLevel: -0.4
 --- !u!114 &145728962881683198
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -112,7 +112,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c34ca23e8e9d3234da3f4f0b96317319, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  octaves: 1
-  dimension: 2
-  lacunarity: 2
-  scale: 0.25
+  octaves: 7
+  dimension: 3
+  lacunarity: 1.5
+  scale: 1
+--- !u!114 &5637924635286943240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 145728962881683187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eca96ebe92873c5afaf83d8fb47c6d7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rebuildOnUpdate: 0
