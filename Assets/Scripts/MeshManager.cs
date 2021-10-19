@@ -14,6 +14,7 @@ public class MeshManager : MonoBehaviour
     public float surfaceLevel = 0f;
 
     private MeshFilter meshFilter;
+    private MeshCollider meshCollider;
     private Mesh mesh;
 
     private NativeArray<Triangle> triangleData;
@@ -31,6 +32,11 @@ public class MeshManager : MonoBehaviour
             mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
 
             meshFilter.sharedMesh = mesh;
+        }
+        if (meshCollider == null)
+        {
+            meshCollider = GetComponent<MeshCollider>();
+            meshCollider.sharedMesh = mesh;
         }
     }
 
@@ -83,7 +89,12 @@ public class MeshManager : MonoBehaviour
 
     public void ConstructMesh()
     {
+        Mesh mesh = new Mesh();
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+
         var trianglesArray = triangleData.ToArray();
+
+        var vertexIdxDict = new Dictionary<float3, int>();
 
         var meshVertices = new List<Vector3>();
         var meshTriangles = new List<int>();
@@ -92,19 +103,31 @@ public class MeshManager : MonoBehaviour
         {
             if (trianglesArray[i].created)
             {
-                meshVertices.Add(trianglesArray[i].a);
-                meshTriangles.Add(meshVertices.Count - 1);
+                for (int j = 0; j < 3; j++)
+                {
+                    float3 vertex = trianglesArray[i][j];
 
-                meshVertices.Add(trianglesArray[i].b);
-                meshTriangles.Add(meshVertices.Count - 1);
-
-                meshVertices.Add(trianglesArray[i].c);
-                meshTriangles.Add(meshVertices.Count - 1);
+                    int sharedVertexIdx;
+                    if (vertexIdxDict.TryGetValue(vertex, out sharedVertexIdx))
+                    {
+                        meshTriangles.Add(sharedVertexIdx);
+                    }
+                    else
+                    {
+                        meshVertices.Add(vertex);
+                        meshTriangles.Add(meshVertices.Count - 1);
+                        vertexIdxDict.Add(vertex, meshVertices.Count - 1);
+                    }
+                }
             }
         }
 
         mesh.vertices = meshVertices.ToArray();
         mesh.triangles = meshTriangles.ToArray();
         mesh.RecalculateNormals();
+
+        this.mesh = mesh;
+        meshFilter.sharedMesh = mesh;
+        meshCollider.sharedMesh = mesh;
     }
 }

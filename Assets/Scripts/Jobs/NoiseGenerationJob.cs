@@ -51,7 +51,7 @@ public struct FractalNoiseJob : IJobParallelFor
         float output = 0;
         for (int i = 0; i < octaves; i++)
         {
-            output += noise.cnoise(pos * math.max(1f, lacunarity * i)) * (1 / (math.max(1f, dimension * i)));
+            output += noise.snoise(pos * math.max(1f, lacunarity * i)) * (1 / (math.max(1f, dimension * i)));
         }
 
         // noiseValues[idx] = NoisePostProcess.Planet(pos, output, 4f * scale);

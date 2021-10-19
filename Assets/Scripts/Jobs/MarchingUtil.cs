@@ -3,12 +3,58 @@ using Unity.Mathematics;
 using System.Collections.Generic;
 using System.Collections;
 
-public struct Triangle
+public struct Triangle : IEnumerable<float3>
 {
     public bool created;
     public float3 c;
     public float3 b;
     public float3 a;
+
+    public float3 this[int index]
+    {
+        get
+        {
+            switch (index)
+            {
+            case 0:
+                return a;
+            case 1:
+                return b;
+            case 2:
+                return c;
+            default:
+                throw new ArgumentOutOfRangeException($"A triangle only has 3 vertices. You tried to access vertex ${index}");
+            }
+        }
+        set
+        {
+            switch (index)
+            {
+            case 0:
+                a = value;
+                break;
+            case 1:
+                b = value;
+                break;
+            case 2:
+                c = value;
+                break;
+            }
+        }
+    }
+
+    public IEnumerator<float3> GetEnumerator()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            yield return this[i];
+        }
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 }
 
 struct Cube : IEnumerable<float4>
