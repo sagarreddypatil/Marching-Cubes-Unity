@@ -18,6 +18,9 @@ public class MeshManager : MonoBehaviour
     private Mesh mesh;
 
     private NativeArray<Triangle> triangleData;
+    List<Vector3> meshVertices = new List<Vector3>();
+    List<int> meshTriangles = new List<int>();
+    Dictionary<float3, int> vertexIdxDict = new Dictionary<float3, int>();
 
     private VoxelManager voxelManager;
 
@@ -89,15 +92,13 @@ public class MeshManager : MonoBehaviour
 
     public void ConstructMesh()
     {
-        Mesh mesh = new Mesh();
         mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
 
         var trianglesArray = triangleData.ToArray();
 
-        var vertexIdxDict = new Dictionary<float3, int>();
-
-        var meshVertices = new List<Vector3>();
-        var meshTriangles = new List<int>();
+        meshVertices.Clear();
+        meshTriangles.Clear();
+        vertexIdxDict.Clear();
 
         for (int i = 0; i < trianglesArray.Length; i++)
         {
@@ -122,11 +123,13 @@ public class MeshManager : MonoBehaviour
             }
         }
 
-        mesh.vertices = meshVertices.ToArray();
-        mesh.triangles = meshTriangles.ToArray();
+        mesh.Clear();
+
+        mesh.SetVertices(meshVertices);
+        mesh.SetTriangles(meshTriangles, 0, true);
+
         mesh.RecalculateNormals();
 
-        this.mesh = mesh;
         meshFilter.sharedMesh = mesh;
         meshCollider.sharedMesh = mesh;
     }

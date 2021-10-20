@@ -127,7 +127,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c34ca23e8e9d3234da3f4f0b96317319, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  octaves: 7
+  octaves: 8
   dimension: 3
   lacunarity: 1.5
   scale: 1

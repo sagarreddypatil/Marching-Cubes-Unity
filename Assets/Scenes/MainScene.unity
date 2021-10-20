@@ -497,5 +497,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: Chunk
       objectReference: {fileID: 0}
+    - target: {fileID: 145728962881683199, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
+      propertyPath: size
+      value: 32
+      objectReference: {fileID: 0}
+    - target: {fileID: 145728962881683199, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
+      propertyPath: scale
+      value: 0.03125
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
