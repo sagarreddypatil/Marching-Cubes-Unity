@@ -13,6 +13,11 @@ public static class NoisePostProcess
         return -pos.y + val;
     }
 
+    public static float RidgedHorizontalLandscape(float3 pos, float val)
+    {
+        return HorizontalLandscape(pos, 1 - math.abs(val));
+    }
+
     public static float Planet(float3 pos, float val, float radius)
     {
         return radius - math.length(pos) + val * 0.1f;
@@ -30,6 +35,7 @@ public struct FractalNoiseJob : IJobParallelFor
     public int octaves;
     public float dimension;
     public float lacunarity;
+    public float noiseFactor;
 
     [NativeDisableParallelForRestriction]
     [WriteOnly]
@@ -55,6 +61,6 @@ public struct FractalNoiseJob : IJobParallelFor
         }
 
         // noiseValues[idx] = NoisePostProcess.Planet(pos, output, 4f * scale);
-        noiseValues[idx] = NoisePostProcess.HorizontalLandscape(pos, output);
+        noiseValues[idx] = NoisePostProcess.RidgedHorizontalLandscape(pos, output * noiseFactor);
     }
 }

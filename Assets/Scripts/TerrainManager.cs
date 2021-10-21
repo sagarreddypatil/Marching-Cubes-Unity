@@ -14,6 +14,7 @@ public class TerrainManager : MonoBehaviour
 {
     [Header("Terrain Options")]
     public int gridSize = 3;
+    public int chunksPerFrame = 1;
     public GameObject chunkPrefab;
 
     [Header("Mesh Options")]
@@ -24,12 +25,10 @@ public class TerrainManager : MonoBehaviour
     [Header("Noise Options")]
     [Range(1, 16)]
     public int octaves = 8;
-    [Range(0f, 4f)]
     public float dimension = 3f;
-    [Range(0f, 4f)]
     public float lacunarity = 1.5f;
-    [Range(0, 4f)]
     public float noiseScale = 1f;
+    public float noiseFactor = 1f;
 
     private Chunk[] chunks;
 
@@ -62,22 +61,40 @@ public class TerrainManager : MonoBehaviour
                         chunkManager = newChunk.GetComponent<ChunkManager>()
                     };
 
-                    chunk.meshManager.size = size;
-                    chunk.meshManager.scale = scale;
-                    chunk.meshManager.surfaceLevel = surfaceLevel;
+                    SetChunkProperties(chunk);
 
-                    chunk.voxelManager.octaves = octaves;
-                    chunk.voxelManager.dimension = dimension;
-                    chunk.voxelManager.lacunarity = lacunarity;
-                    chunk.voxelManager.scale = noiseScale;
-
-                    // if (Vector3.Distance(Vector3.zero, location) >= 3f && Vector3.Distance(Vector3.zero, location) <= 5f) {
                     counter++;
-                    chunk.chunkManager.rebuildOnUpdate = counter;
+                    chunk.chunkManager.rebuildOnUpdate = counter / chunksPerFrame;
                     chunk.gameObject.SetActive(true);
-                    // }
 
                     chunks[idxId(x, y, z)] = chunk;
+                }
+            }
+        }
+    }
+
+    void SetChunkProperties(Chunk chunk)
+    {
+        chunk.meshManager.size = size;
+        chunk.meshManager.scale = scale;
+        chunk.meshManager.surfaceLevel = surfaceLevel * noiseFactor;
+
+        chunk.voxelManager.octaves = octaves;
+        chunk.voxelManager.dimension = dimension;
+        chunk.voxelManager.lacunarity = lacunarity;
+        chunk.voxelManager.scale = noiseScale;
+        chunk.voxelManager.noiseFactor = noiseFactor;
+    }
+
+    void OnValidate()
+    {
+        if (chunks != null)
+        {
+            foreach (Chunk chunk in chunks)
+            {
+                if (chunk.gameObject != null)
+                {
+                    SetChunkProperties(chunk);
                 }
             }
         }

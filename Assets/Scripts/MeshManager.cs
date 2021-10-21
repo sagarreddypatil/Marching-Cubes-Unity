@@ -108,17 +108,17 @@ public class MeshManager : MonoBehaviour
                 {
                     float3 vertex = trianglesArray[i][j];
 
-                    int sharedVertexIdx;
-                    if (vertexIdxDict.TryGetValue(vertex, out sharedVertexIdx))
-                    {
-                        meshTriangles.Add(sharedVertexIdx);
-                    }
-                    else
-                    {
-                        meshVertices.Add(vertex);
-                        meshTriangles.Add(meshVertices.Count - 1);
-                        vertexIdxDict.Add(vertex, meshVertices.Count - 1);
-                    }
+                    // int sharedVertexIdx;
+                    // if (vertexIdxDict.TryGetValue(vertex, out sharedVertexIdx))
+                    // {
+                    //     meshTriangles.Add(sharedVertexIdx);
+                    // }
+                    // else
+                    // {
+                    meshVertices.Add(vertex);
+                    meshTriangles.Add(meshVertices.Count - 1);
+                    //     vertexIdxDict.Add(vertex, meshVertices.Count - 1);
+                    // }
                 }
             }
         }

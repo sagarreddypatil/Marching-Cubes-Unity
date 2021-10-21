@@ -10,12 +10,10 @@ public class VoxelManager : MonoBehaviour
 {
     [Range(1, 16)]
     public int octaves = 8;
-    [Range(0f, 4f)]
     public float dimension = 2f;
-    [Range(0f, 4f)]
     public float lacunarity = 2f;
-    [Range(0, 4f)]
     public float scale = 0.25f;
+    public float noiseFactor = 1f;
 
     [HideInInspector]
     public NativeArray<float> voxelData;
@@ -72,6 +70,7 @@ public class VoxelManager : MonoBehaviour
             position = transform.localPosition,
             meshScale = meshManager.scale,
             scale = scale,
+            noiseFactor = noiseFactor,
             size = voxelSize,
             octaves = octaves,
             dimension = dimension,

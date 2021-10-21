@@ -82,6 +82,7 @@ public struct MarchingCubesJob : IJobParallelFor
     {
         float t = (surfaceLevel - a.w) / (b.w - a.w);
         return a.xyz + t * (b.xyz - a.xyz);
+        // return (a.xyz + b.xyz) / 2f;
     }
 
     int triTableValue(int a, int b)
