@@ -27,18 +27,21 @@ public class ChunkManager : MonoBehaviour
 
     void Update()
     {
-        int frameCount = Time.frameCount;
-        if (rebuildOnUpdate != -1 && frameCount % math.max(1, rebuildOnUpdate) == 0)
+        if (isActiveAndEnabled)
         {
-            var voxelHandle = voxelManager.GenerateVoxels();
-            var meshHandle = meshManager.GenerateTriangles(voxelHandle);
-
-            meshHandle.Complete();
-            meshManager.ConstructMesh();
-
-            if (rebuildOnUpdate != 0)
+            int frameCount = Time.frameCount;
+            if (rebuildOnUpdate != -1 && frameCount % math.max(1, rebuildOnUpdate) == 0)
             {
-                rebuildOnUpdate = -1;
+                var voxelHandle = voxelManager.GenerateVoxels();
+                var meshHandle = meshManager.GenerateTriangles(voxelHandle);
+
+                meshHandle.Complete();
+                meshManager.ConstructMesh();
+
+                if (rebuildOnUpdate != 0)
+                {
+                    rebuildOnUpdate = -1;
+                }
             }
         }
     }

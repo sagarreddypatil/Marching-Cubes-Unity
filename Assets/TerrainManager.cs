@@ -45,6 +45,7 @@ public class TerrainManager : MonoBehaviour
 
     void Start()
     {
+        int counter = 0;
         chunks = new Chunk[gridSize * gridSize * gridSize];
         for (int x = 0; x < gridSize; x++)
         {
@@ -70,9 +71,11 @@ public class TerrainManager : MonoBehaviour
                     chunk.voxelManager.lacunarity = lacunarity;
                     chunk.voxelManager.scale = noiseScale;
 
-                    chunk.chunkManager.rebuildOnUpdate = idxId(x, y, z) + 1;
-
+                    // if (Vector3.Distance(Vector3.zero, location) >= 3f && Vector3.Distance(Vector3.zero, location) <= 5f) {
+                    counter++;
+                    chunk.chunkManager.rebuildOnUpdate = counter;
                     chunk.gameObject.SetActive(true);
+                    // }
 
                     chunks[idxId(x, y, z)] = chunk;
                 }
