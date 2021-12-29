@@ -33,6 +33,8 @@ public class ChunkManager : MonoBehaviour
             int frameCount = Time.frameCount;
             if (rebuildOnUpdate != -1 && frameCount % math.max(1, rebuildOnUpdate) == 0)
             {
+                Debug.Log(frameCount);
+                Debug.Log(rebuildOnUpdate);
                 var voxelHandle = voxelManager.GenerateVoxels();
                 var meshHandle = meshManager.GenerateTriangles(voxelHandle);
 

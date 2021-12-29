@@ -65,7 +65,7 @@ public class TerrainManager : MonoBehaviour
                     SetChunkProperties(chunk);
 
                     counter++;
-                    chunk.chunkManager.rebuildOnUpdate = counter / chunksPerFrame;
+                    chunk.chunkManager.rebuildOnUpdate = counter / chunksPerFrame + 1;
                     chunk.gameObject.SetActive(true);
 
                     chunks[idxId(x, y, z)] = chunk;
@@ -99,7 +99,7 @@ public class TerrainManager : MonoBehaviour
                 if (chunk.gameObject != null)
                 {
                     SetChunkProperties(chunk);
-                    chunk.chunkManager.rebuildOnUpdate = i / chunksPerFrame;
+                    chunk.chunkManager.rebuildOnUpdate = i / chunksPerFrame + 1;
                 }
             }
         }
