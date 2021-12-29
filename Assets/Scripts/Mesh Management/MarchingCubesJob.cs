@@ -19,7 +19,7 @@ public struct MarchingCubesJob : IJobParallelFor
     public NativeArray<Triangle> triangles;
 
     [ReadOnly]
-    public NativeArray<float> voxels;
+    public NativeArray<half> voxels;
 
     public void Execute(int idx)
     {
@@ -93,7 +93,7 @@ public struct MarchingCubesJob : IJobParallelFor
     float getNoise(int3 pos) // TODO: use noise from outside source, passed as parameter to this job
     {
         int voxelSize = size + 1;
-        return voxels[pos.x + pos.y * voxelSize + pos.z * voxelSize * voxelSize];
+        return Util.dequantize(voxels[pos.x + pos.y * voxelSize + pos.z * voxelSize * voxelSize]);
 
         // return -(float)pos.y + noise.snoise((float3)pos);
     }

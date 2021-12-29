@@ -13,10 +13,10 @@ public class VoxelManager : MonoBehaviour
     public float dimension = 2f;
     public float lacunarity = 2f;
     public float scale = 0.25f;
-    public float noiseFactor = 1f;
+    public float noiseIntensity = 1f;
 
     [HideInInspector]
-    public NativeArray<float> voxelData;
+    public NativeArray<half> voxelData;
     private MeshManager meshManager;
 
     void Awake()
@@ -40,7 +40,7 @@ public class VoxelManager : MonoBehaviour
     void AllocateVoxelData()
     {
         int voxelSize = meshManager.size + 1;
-        voxelData = new NativeArray<float>(voxelSize * voxelSize * voxelSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        voxelData = new NativeArray<half>(voxelSize * voxelSize * voxelSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
     }
 
     void DisposeVoxelData()
@@ -67,10 +67,10 @@ public class VoxelManager : MonoBehaviour
 
         int voxelSize = meshManager.size + 1;
         var job = new FractalNoiseJob {
-            position = transform.localPosition,
+            position = transform.position,
             meshScale = meshManager.scale,
             scale = scale,
-            noiseFactor = noiseFactor,
+            noiseIntensity = noiseIntensity,
             size = voxelSize,
             octaves = octaves,
             dimension = dimension,

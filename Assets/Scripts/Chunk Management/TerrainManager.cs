@@ -15,6 +15,7 @@ public class TerrainManager : MonoBehaviour
     [Header("Terrain Options")]
     public int gridSize = 3;
     public int chunksPerFrame = 1;
+    public bool continousUpdate = false;
     public GameObject chunkPrefab;
 
     [Header("Mesh Options")]
@@ -28,7 +29,7 @@ public class TerrainManager : MonoBehaviour
     public float dimension = 3f;
     public float lacunarity = 1.5f;
     public float noiseScale = 1f;
-    public float noiseFactor = 1f;
+    public float noiseIntensity = 1f;
 
     private Chunk[] chunks;
 
@@ -75,26 +76,30 @@ public class TerrainManager : MonoBehaviour
 
     void SetChunkProperties(Chunk chunk)
     {
+        chunk.chunkManager.continousUpdate = continousUpdate;
+
         chunk.meshManager.size = size;
         chunk.meshManager.scale = scale;
-        chunk.meshManager.surfaceLevel = surfaceLevel * noiseFactor;
+        chunk.meshManager.surfaceLevel = surfaceLevel * noiseIntensity;
 
         chunk.voxelManager.octaves = octaves;
         chunk.voxelManager.dimension = dimension;
         chunk.voxelManager.lacunarity = lacunarity;
         chunk.voxelManager.scale = noiseScale;
-        chunk.voxelManager.noiseFactor = noiseFactor;
+        chunk.voxelManager.noiseIntensity = noiseIntensity;
     }
 
     void OnValidate()
     {
         if (chunks != null)
         {
-            foreach (Chunk chunk in chunks)
+            for (int i = 0; i < chunks.Length; i++)
             {
+                Chunk chunk = chunks[i];
                 if (chunk.gameObject != null)
                 {
                     SetChunkProperties(chunk);
+                    chunk.chunkManager.rebuildOnUpdate = i / chunksPerFrame;
                 }
             }
         }

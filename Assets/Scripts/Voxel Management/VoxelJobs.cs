@@ -6,6 +6,21 @@ using System.Collections.Generic;
 using Unity.Collections;
 using System.Collections;
 
+[BurstCompatible]
+public static class Util
+{
+    public static half quantize(float value)
+    {
+        return (half)(value);
+    }
+
+    public static float dequantize(half value)
+    {
+        return value;
+    }
+}
+
+[BurstCompatible]
 public static class NoisePostProcess
 {
     public static float HorizontalLandscape(float3 pos, float val)
@@ -35,11 +50,11 @@ public struct FractalNoiseJob : IJobParallelFor
     public int octaves;
     public float dimension;
     public float lacunarity;
-    public float noiseFactor;
+    public float noiseIntensity;
 
     [NativeDisableParallelForRestriction]
     [WriteOnly]
-    public NativeArray<float> noiseValues;
+    public NativeArray<half> noiseValues;
 
     public void Execute(int idx)
     {
@@ -57,10 +72,9 @@ public struct FractalNoiseJob : IJobParallelFor
         float output = 0;
         for (int i = 0; i < octaves; i++)
         {
-            output += noise.snoise(pos * math.max(1f, lacunarity * i)) * (1 / (math.max(1f, dimension * i)));
+            output += noise.snoise(pos * math.exp2(math.max(0f, lacunarity) * i)) / math.exp2(math.max(0f, dimension) * i);
         }
 
-        // noiseValues[idx] = NoisePostProcess.Planet(pos, output, 4f * scale);
-        noiseValues[idx] = NoisePostProcess.RidgedHorizontalLandscape(pos, output * noiseFactor);
+        noiseValues[idx] = Util.quantize(NoisePostProcess.HorizontalLandscape(pos, output * noiseIntensity));
     }
 }

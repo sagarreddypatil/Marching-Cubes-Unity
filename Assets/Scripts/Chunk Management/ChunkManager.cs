@@ -10,6 +10,7 @@ public class ChunkManager : MonoBehaviour
     private MeshManager meshManager;
 
     public int rebuildOnUpdate = -1;
+    public bool continousUpdate = false;
 
     void Awake()
     {
@@ -38,7 +39,7 @@ public class ChunkManager : MonoBehaviour
                 meshHandle.Complete();
                 meshManager.ConstructMesh();
 
-                if (rebuildOnUpdate != 0)
+                if (rebuildOnUpdate != 0 && !continousUpdate)
                 {
                     rebuildOnUpdate = -1;
                 }
