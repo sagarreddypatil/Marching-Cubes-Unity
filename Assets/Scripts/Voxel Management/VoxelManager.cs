@@ -39,7 +39,7 @@ public class VoxelManager : MonoBehaviour
 
     void AllocateVoxelData()
     {
-        int voxelSize = meshManager.size + 1;
+        int voxelSize = meshManager.size + 3;
         voxelData = new NativeArray<half>(voxelSize * voxelSize * voxelSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
     }
 
@@ -65,7 +65,7 @@ public class VoxelManager : MonoBehaviour
             AllocateVoxelData();
         }
 
-        int voxelSize = meshManager.size + 1;
+        int voxelSize = meshManager.size + 3;
         var job = new FractalNoiseJob {
             position = transform.position,
             meshScale = meshManager.scale,

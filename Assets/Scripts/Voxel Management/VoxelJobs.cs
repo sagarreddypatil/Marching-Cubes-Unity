@@ -66,7 +66,7 @@ public struct FractalNoiseJob : IJobParallelFor
         tmpIdx /= size;
         int z = tmpIdx % size;
 
-        var intPos = new int3(x, y, z);
+        var intPos = new int3(x - 1, y - 1, z - 1);
         float3 pos = (position + (float3)intPos * meshScale) * scale;
 
         float output = 0;

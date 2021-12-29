@@ -12,11 +12,14 @@ public struct MarchingCubesJob : IJobParallelFor
     public float surfaceLevel;
     public int size;
     public float scale;
-    public int3 position;
 
     [NativeDisableParallelForRestriction]
     [WriteOnly]
     public NativeArray<Triangle> triangles;
+
+    [NativeDisableParallelForRestriction]
+    [WriteOnly]
+    public NativeArray<Triangle> normals;
 
     [ReadOnly]
     public NativeArray<half> voxels;
@@ -31,15 +34,19 @@ public struct MarchingCubesJob : IJobParallelFor
         tmpIdx /= size;
         int z = tmpIdx % size;
 
-        var cube = new Cube();
+        var cubeCornerValues = new Cube();
+        var cubeCornerNorms = new Cube();
         int cubeIdx = 0;
 
         for (int i = 0; i < 8; i++)
         {
             int3 intCoords = new int3(x, y, z) + LUT.cornerCoords[i];
             float3 realCoords = (float3)(intCoords)*scale;
-            cube[i] = new float4(realCoords, getNoise(intCoords));
-            if (cube[i].w < surfaceLevel)
+
+            cubeCornerValues[i] = new float4(realCoords, getVoxelValue(intCoords));
+            cubeCornerNorms[i] = new float4(calculateNorm(intCoords), getVoxelValue(intCoords));
+
+            if (cubeCornerValues[i].w < surfaceLevel)
             {
                 cubeIdx |= 1 << i;
             }
@@ -60,11 +67,21 @@ public struct MarchingCubesJob : IJobParallelFor
 
             var newTri = new Triangle {
                 created = true,
-                c = interpolateVerts(cube[a0], cube[b0]),
-                b = interpolateVerts(cube[a1], cube[b1]),
-                a = interpolateVerts(cube[a2], cube[b2]),
+                c = interpolateVerts(cubeCornerValues[a0], cubeCornerValues[b0]),
+                b = interpolateVerts(cubeCornerValues[a1], cubeCornerValues[b1]),
+                a = interpolateVerts(cubeCornerValues[a2], cubeCornerValues[b2]),
             };
+
+            var newNorms = new Triangle {
+                created = true,
+                c = interpolateVerts(cubeCornerNorms[a0], cubeCornerNorms[b0]),
+                b = interpolateVerts(cubeCornerNorms[a1], cubeCornerNorms[b1]),
+                a = interpolateVerts(cubeCornerNorms[a2], cubeCornerNorms[b2]),
+            };
+
             triangles[idx * 5 + counter] = newTri;
+            normals[idx * 5 + counter] = newNorms;
+
             counter++;
         }
         for (int i = counter; i < 5; i++)
@@ -85,16 +102,23 @@ public struct MarchingCubesJob : IJobParallelFor
         // return (a.xyz + b.xyz) / 2f;
     }
 
+    float3 calculateNorm(int3 pos)
+    {
+        float3 norm = new float3(getVoxelValue(pos + new int3(-1, 0, 0)) - getVoxelValue(pos + new int3(1, 0, 0)),
+                                 getVoxelValue(pos + new int3(0, -1, 0)) - getVoxelValue(pos + new int3(0, 1, 0)),
+                                 getVoxelValue(pos + new int3(0, 0, -1)) - getVoxelValue(pos + new int3(0, 0, 1)));
+
+        return math.normalize(norm);
+    }
+
     int triTableValue(int a, int b)
     {
         return LUT.triTable[a * 16 + b];
     }
 
-    float getNoise(int3 pos) // TODO: use noise from outside source, passed as parameter to this job
+    float getVoxelValue(int3 pos)
     {
-        int voxelSize = size + 1;
-        return Util.dequantize(voxels[pos.x + pos.y * voxelSize + pos.z * voxelSize * voxelSize]);
-
-        // return -(float)pos.y + noise.snoise((float3)pos);
+        int voxelSize = size + 3;
+        return Util.dequantize(voxels[(pos.x + 1) + (pos.y + 1) * voxelSize + (pos.z + 1) * voxelSize * voxelSize]);
     }
 }

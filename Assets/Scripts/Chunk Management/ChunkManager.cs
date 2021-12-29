@@ -10,6 +10,7 @@ public class ChunkManager : MonoBehaviour
     private MeshManager meshManager;
 
     public int rebuildOnUpdate = -1;
+    public int rebuildOnUpdateCount = 1;
     public bool continousUpdate = false;
 
     void Awake()
@@ -31,17 +32,15 @@ public class ChunkManager : MonoBehaviour
         if (isActiveAndEnabled)
         {
             int frameCount = Time.frameCount;
-            if (rebuildOnUpdate != -1 && frameCount % math.max(1, rebuildOnUpdate) == 0)
+            if (Time.frameCount % math.max(1, rebuildOnUpdateCount) == rebuildOnUpdate)
             {
-                Debug.Log(frameCount);
-                Debug.Log(rebuildOnUpdate);
                 var voxelHandle = voxelManager.GenerateVoxels();
                 var meshHandle = meshManager.GenerateTriangles(voxelHandle);
 
                 meshHandle.Complete();
                 meshManager.ConstructMesh();
 
-                if (rebuildOnUpdate != 0 && !continousUpdate)
+                if (!continousUpdate)
                 {
                     rebuildOnUpdate = -1;
                 }
