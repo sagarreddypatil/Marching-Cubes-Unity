@@ -16,7 +16,7 @@ public class VoxelManager : MonoBehaviour
     public float noiseIntensity = 1f;
 
     [HideInInspector]
-    public NativeArray<half> voxelData;
+    public NativeArray<float> voxelData;
     private MeshManager meshManager;
 
     void Awake()
@@ -40,7 +40,7 @@ public class VoxelManager : MonoBehaviour
     void AllocateVoxelData()
     {
         int voxelSize = meshManager.size + 3;
-        voxelData = new NativeArray<half>(voxelSize * voxelSize * voxelSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        voxelData = new NativeArray<float>(voxelSize * voxelSize * voxelSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
     }
 
     void DisposeVoxelData()

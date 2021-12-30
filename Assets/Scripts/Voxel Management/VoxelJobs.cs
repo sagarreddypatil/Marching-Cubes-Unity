@@ -7,20 +7,6 @@ using Unity.Collections;
 using System.Collections;
 
 [BurstCompatible]
-public static class Util
-{
-    public static half quantize(float value)
-    {
-        return (half)(value);
-    }
-
-    public static float dequantize(half value)
-    {
-        return value;
-    }
-}
-
-[BurstCompatible]
 public static class NoisePostProcess
 {
     public static float HorizontalLandscape(float3 pos, float val)
@@ -54,7 +40,7 @@ public struct FractalNoiseJob : IJobParallelFor
 
     [NativeDisableParallelForRestriction]
     [WriteOnly]
-    public NativeArray<half> noiseValues;
+    public NativeArray<float> noiseValues;
 
     public void Execute(int idx)
     {
@@ -75,6 +61,6 @@ public struct FractalNoiseJob : IJobParallelFor
             output += noise.snoise(pos * math.exp2(math.max(0f, lacunarity) * i)) / math.exp2(math.max(0f, dimension) * i);
         }
 
-        noiseValues[idx] = Util.quantize(NoisePostProcess.HorizontalLandscape(pos, output * noiseIntensity));
+        noiseValues[idx] = NoisePostProcess.HorizontalLandscape(pos, output * noiseIntensity);
     }
 }

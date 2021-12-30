@@ -22,7 +22,7 @@ public struct MarchingCubesJob : IJobParallelFor
     public NativeArray<Triangle> normals;
 
     [ReadOnly]
-    public NativeArray<half> voxels;
+    public NativeArray<float> voxels;
 
     public void Execute(int idx)
     {
@@ -119,6 +119,6 @@ public struct MarchingCubesJob : IJobParallelFor
     float getVoxelValue(int3 pos)
     {
         int voxelSize = size + 3;
-        return Util.dequantize(voxels[(pos.x + 1) + (pos.y + 1) * voxelSize + (pos.z + 1) * voxelSize * voxelSize]);
+        return voxels[(pos.x + 1) + (pos.y + 1) * voxelSize + (pos.z + 1) * voxelSize * voxelSize];
     }
 }

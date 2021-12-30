@@ -118,7 +118,9 @@ public class MeshManager : MonoBehaviour
                     float3 vertex = trianglesArray[i][j];
                     float3 normal = normalsArray[i][j];
 
-                    if (false) // removing duplicate verts is too expensive
+                    bool removeDuplicateVerts = false;
+
+                    if (removeDuplicateVerts) // removing duplicate verts is too expensive
                     {
                         int sharedVertexIdx;
                         if (vertexIdxDict.TryGetValue(vertex, out sharedVertexIdx))
