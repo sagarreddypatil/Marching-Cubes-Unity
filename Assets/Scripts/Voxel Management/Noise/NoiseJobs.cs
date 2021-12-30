@@ -1,10 +1,7 @@
-using System;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Burst;
-using System.Collections.Generic;
 using Unity.Collections;
-using System.Collections;
 
 [BurstCompatible]
 public static class NoisePostProcess
@@ -29,7 +26,7 @@ public static class NoisePostProcess
 public struct FractalNoiseJob : IJobParallelFor
 {
     public float3 position;
-    public float meshScale;
+    public float chunkScale;
     public float scale;
 
     public int size;
@@ -53,7 +50,7 @@ public struct FractalNoiseJob : IJobParallelFor
         int z = tmpIdx % size;
 
         var intPos = new int3(x - 1, y - 1, z - 1);
-        float3 pos = (position + (float3)intPos * meshScale) * scale;
+        float3 pos = (position + (float3)intPos * chunkScale) * scale;
 
         float output = 0;
         for (int i = 0; i < octaves; i++)

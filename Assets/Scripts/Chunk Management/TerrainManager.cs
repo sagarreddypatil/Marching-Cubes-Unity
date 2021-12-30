@@ -13,12 +13,14 @@ public class TerrainManager : MonoBehaviour
     [Header("Terrain Options")]
     public int gridSize = 3;
     public int chunksPerFrame = 1;
-    public bool continousUpdate = false;
     public GameObject chunkPrefab;
 
-    [Header("Mesh Options")]
+    [Header("Chunk Options")]
     public int size = 16;
     public float scale = 1f / 16f;
+    public bool continousUpdate = false;
+
+    [Header("Mesh Options")]
     public float surfaceLevel = 0f;
     public bool smoothShading = true;
 
@@ -63,12 +65,13 @@ public class TerrainManager : MonoBehaviour
 
                     SetChunkProperties(chunk);
 
-                    counter++;
                     chunk.chunkManager.rebuildOnUpdateCount = gridSize * gridSize * gridSize / chunksPerFrame;
                     chunk.chunkManager.rebuildOnUpdate = counter / chunksPerFrame;
                     chunk.gameObject.SetActive(true);
 
                     chunks[idxId(x, y, z)] = chunk;
+
+                    counter++;
                 }
             }
         }
@@ -77,9 +80,9 @@ public class TerrainManager : MonoBehaviour
     void SetChunkProperties(Chunk chunk)
     {
         chunk.chunkManager.continousUpdate = continousUpdate;
+        chunk.chunkManager.size = size;
+        chunk.chunkManager.scale = scale;
 
-        chunk.meshManager.size = size;
-        chunk.meshManager.scale = scale;
         chunk.meshManager.surfaceLevel = surfaceLevel * noiseIntensity;
         chunk.meshManager.smoothShading = smoothShading;
 

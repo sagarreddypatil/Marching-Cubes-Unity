@@ -8,9 +8,6 @@ using Unity.Jobs;
 
 public class MeshManager : MonoBehaviour
 {
-    public int size = 16;
-
-    public float scale = 0.1f;
     public float surfaceLevel = 0f;
 
     public bool smoothShading = true;
@@ -26,10 +23,12 @@ public class MeshManager : MonoBehaviour
     List<int> meshTriangles = new List<int>();
     Dictionary<float3, int> vertexIdxDict = new Dictionary<float3, int>();
 
+    private ChunkManager chunkManager;
     private VoxelManager voxelManager;
 
     void Awake()
     {
+        chunkManager = GetComponent<ChunkManager>();
         voxelManager = GetComponent<VoxelManager>();
         if (meshFilter == null)
         {
@@ -62,6 +61,8 @@ public class MeshManager : MonoBehaviour
 
     void AllocateTriangleData()
     {
+        int size = chunkManager.size;
+
         triangleData = new NativeArray<Triangle>(size * size * size * 5, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
         normalData = new NativeArray<Triangle>(size * size * size * 5, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
     }
@@ -79,6 +80,9 @@ public class MeshManager : MonoBehaviour
 
     public JobHandle GenerateTriangles(JobHandle dependsOn = default)
     {
+        int size = chunkManager.size;
+        float scale = chunkManager.scale;
+
         if (!triangleData.IsCreated)
         {
             AllocateTriangleData();

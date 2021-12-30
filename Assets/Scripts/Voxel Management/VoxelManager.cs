@@ -17,11 +17,11 @@ public class VoxelManager : MonoBehaviour
 
     [HideInInspector]
     public NativeArray<float> voxelData;
-    private MeshManager meshManager;
+    private ChunkManager chunkManager;
 
     void Awake()
     {
-        meshManager = GetComponent<MeshManager>();
+        chunkManager = GetComponent<ChunkManager>();
     }
 
     void OnEnable()
@@ -39,7 +39,7 @@ public class VoxelManager : MonoBehaviour
 
     void AllocateVoxelData()
     {
-        int voxelSize = meshManager.size + 3;
+        int voxelSize = chunkManager.size + 3;
         voxelData = new NativeArray<float>(voxelSize * voxelSize * voxelSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
     }
 
@@ -65,10 +65,10 @@ public class VoxelManager : MonoBehaviour
             AllocateVoxelData();
         }
 
-        int voxelSize = meshManager.size + 3;
+        int voxelSize = chunkManager.size + 3;
         var job = new FractalNoiseJob {
             position = transform.position,
-            meshScale = meshManager.scale,
+            chunkScale = chunkManager.scale,
             scale = scale,
             noiseIntensity = noiseIntensity,
             size = voxelSize,
