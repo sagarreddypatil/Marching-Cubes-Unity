@@ -10,7 +10,7 @@ using System.Collections;
 public struct MarchingCubesJob : IJobParallelFor
 {
     public float surfaceLevel;
-    public int size;
+    public int resolution;
     public float scale;
 
     [NativeDisableParallelForRestriction]
@@ -28,11 +28,11 @@ public struct MarchingCubesJob : IJobParallelFor
     {
         int tmpIdx = idx;
 
-        int x = tmpIdx % size;
-        tmpIdx /= size;
-        int y = tmpIdx % size;
-        tmpIdx /= size;
-        int z = tmpIdx % size;
+        int x = tmpIdx % resolution;
+        tmpIdx /= resolution;
+        int y = tmpIdx % resolution;
+        tmpIdx /= resolution;
+        int z = tmpIdx % resolution;
 
         var cubeCornerValues = new Cube();
         var cubeCornerNorms = new Cube();
@@ -118,7 +118,7 @@ public struct MarchingCubesJob : IJobParallelFor
 
     float getVoxelValue(int3 pos)
     {
-        int voxelSize = size + 3;
+        int voxelSize = resolution + 3;
         return voxels[(pos.x + 1) + (pos.y + 1) * voxelSize + (pos.z + 1) * voxelSize * voxelSize];
     }
 }

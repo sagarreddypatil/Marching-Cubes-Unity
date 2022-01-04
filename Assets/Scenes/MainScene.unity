@@ -478,10 +478,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridSize: 10
-  chunksPerFrame: 10
+  chunksPerFrame: 3
   chunkPrefab: {fileID: 145728962881683187, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
-  size: 16
-  scale: 0.625
+  resolution: 32
+  size: 10
   continousUpdate: 0
   surfaceLevel: -0.4
   smoothShading: 1

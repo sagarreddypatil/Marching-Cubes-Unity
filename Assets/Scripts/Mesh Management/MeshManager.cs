@@ -75,7 +75,7 @@ public class MeshManager : MonoBehaviour
 
     void AllocateTriangleData()
     {
-        int size = chunkManager.size;
+        int size = chunkManager.resolution;
 
         triangleData = new NativeArray<Triangle>(size * size * size * 5, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
         normalData = new NativeArray<Triangle>(size * size * size * 5, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
@@ -97,7 +97,7 @@ public class MeshManager : MonoBehaviour
 
     public JobHandle GenerateTriangles(JobHandle dependsOn = default)
     {
-        int size = chunkManager.size;
+        int resolution = chunkManager.resolution;
 
         float scale = chunkManager.scale;
 
@@ -105,7 +105,7 @@ public class MeshManager : MonoBehaviour
         {
             AllocateTriangleData();
         }
-        if (triangleData.Length != size * size * size * 5)
+        if (triangleData.Length != resolution * resolution * resolution * 5)
         {
             DisposeTriangleData();
             AllocateTriangleData();
@@ -113,14 +113,14 @@ public class MeshManager : MonoBehaviour
 
         var job = new MarchingCubesJob {
             surfaceLevel = surfaceLevel,
-            size = size,
+            resolution = resolution,
             scale = scale,
             triangles = triangleData,
             normals = normalData,
             voxels = voxelManager.voxelData
         };
 
-        var handle = job.Schedule(size * size * size, 1, dependsOn);
+        var handle = job.Schedule(resolution * resolution * resolution, 1, dependsOn);
         return handle;
     }
 

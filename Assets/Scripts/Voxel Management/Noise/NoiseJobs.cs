@@ -26,10 +26,10 @@ public static class NoisePostProcess
 public struct FractalNoiseJob : IJobParallelFor
 {
     public float3 position;
-    public float chunkScale;
-    public float scale;
+    public float voxelScale;
+    public float noiseScale;
 
-    public int size;
+    public int resolution;
     public int octaves;
     public float dimension;
     public float lacunarity;
@@ -43,14 +43,14 @@ public struct FractalNoiseJob : IJobParallelFor
     {
         int tmpIdx = idx;
 
-        int x = tmpIdx % size;
-        tmpIdx /= size;
-        int y = tmpIdx % size;
-        tmpIdx /= size;
-        int z = tmpIdx % size;
+        int x = tmpIdx % resolution;
+        tmpIdx /= resolution;
+        int y = tmpIdx % resolution;
+        tmpIdx /= resolution;
+        int z = tmpIdx % resolution;
 
         var intPos = new int3(x - 1, y - 1, z - 1);
-        float3 pos = (position + (float3)intPos * chunkScale) * scale;
+        float3 pos = (position + (float3)intPos * voxelScale) * noiseScale;
 
         float output = 0;
         for (int i = 0; i < octaves; i++)

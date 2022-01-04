@@ -39,8 +39,8 @@ public class VoxelManager : MonoBehaviour
 
     void AllocateVoxelData()
     {
-        int voxelSize = chunkManager.size + 3;
-        voxelData = new NativeArray<float>(voxelSize * voxelSize * voxelSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        int resolution = chunkManager.resolution + 3;
+        voxelData = new NativeArray<float>(resolution * resolution * resolution, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
     }
 
     void DisposeVoxelData()
@@ -65,8 +65,8 @@ public class VoxelManager : MonoBehaviour
             AllocateVoxelData();
         }
 
-        int voxelSize = chunkManager.size + 3;
-        if (voxelData.Length != voxelSize * voxelSize * voxelSize)
+        int resolution = chunkManager.resolution + 3;
+        if (voxelData.Length != resolution * resolution * resolution)
         {
             DisposeVoxelData();
             AllocateVoxelData();
@@ -74,17 +74,17 @@ public class VoxelManager : MonoBehaviour
 
         var job = new FractalNoiseJob {
             position = transform.position,
-            chunkScale = chunkManager.scale,
-            scale = scale,
+            voxelScale = chunkManager.scale,
+            noiseScale = scale,
             noiseIntensity = noiseIntensity,
-            size = voxelSize,
+            resolution = resolution,
             octaves = octaves,
             dimension = dimension,
             lacunarity = lacunarity,
             noiseValues = voxelData
         };
 
-        var handle = job.Schedule(voxelSize * voxelSize * voxelSize, 8);
+        var handle = job.Schedule(resolution * resolution * resolution, 8);
         return handle;
     }
 }

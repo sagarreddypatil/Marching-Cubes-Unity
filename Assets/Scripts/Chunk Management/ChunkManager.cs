@@ -5,9 +5,15 @@ public class ChunkManager : MonoBehaviour
 {
     private VoxelManager voxelManager;
     private MeshManager meshManager;
-    public int size = 16;
+    public int resolution = 16;
+    public float size = 10f;
 
-    public float scale = 0.1f;
+    public float scale
+    {
+        get {
+            return size / resolution;
+        }
+    }
 
     public int rebuildOnUpdate = -1;
     public int rebuildOnUpdateCount = 1;

@@ -16,8 +16,8 @@ public class TerrainManager : MonoBehaviour
     public GameObject chunkPrefab;
 
     [Header("Chunk Options")]
-    public int size = 16;
-    public float scale = 1f / 16f;
+    public int resolution = 16;
+    public float size = 1f / 16f;
     public bool continousUpdate = false;
 
     [Header("Mesh Options")]
@@ -36,7 +36,7 @@ public class TerrainManager : MonoBehaviour
 
     float idxToFloat(int idx)
     {
-        return (float)idx * scale * size - 0.5f * gridSize;
+        return (float)idx * size - 0.5f * gridSize;
     }
 
     int idxId(int x, int y, int z)
@@ -80,8 +80,8 @@ public class TerrainManager : MonoBehaviour
     void SetChunkProperties(Chunk chunk)
     {
         chunk.chunkManager.continousUpdate = continousUpdate;
+        chunk.chunkManager.resolution = resolution;
         chunk.chunkManager.size = size;
-        chunk.chunkManager.scale = scale;
 
         chunk.meshManager.surfaceLevel = surfaceLevel * noiseIntensity;
         chunk.meshManager.smoothShading = smoothShading;
