@@ -5,6 +5,7 @@ using UnityEngine;
 using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Jobs;
+using Unity.Profiling;
 
 public class MeshManager : MonoBehaviour
 {
@@ -14,10 +15,13 @@ public class MeshManager : MonoBehaviour
 
     private MeshFilter meshFilter;
     private MeshCollider meshCollider;
+    private MeshRenderer meshRenderer;
     private Mesh mesh;
 
     private NativeArray<Triangle> triangleData;
     private NativeArray<Triangle> normalData;
+    private Triangle[] triangleArray;
+    private Triangle[] normalArray;
     List<Vector3> meshVertices = new List<Vector3>();
     List<Vector3> meshNormals = new List<Vector3>();
     List<int> meshTriangles = new List<int>();
@@ -26,16 +30,26 @@ public class MeshManager : MonoBehaviour
     private ChunkManager chunkManager;
     private VoxelManager voxelManager;
 
+    static readonly ProfilerMarker meshDataPrepMarker = new ProfilerMarker("MeshDataPrep");
+    static readonly ProfilerMarker vertexLoopMarker = new ProfilerMarker("VertexLoop");
+    static readonly ProfilerMarker vertexDataRetrivalMarker = new ProfilerMarker("VertexDataRetrival");
+    static readonly ProfilerMarker vertexAdditionMarker = new ProfilerMarker("VertexAddition");
+
     void Awake()
     {
         chunkManager = GetComponent<ChunkManager>();
         voxelManager = GetComponent<VoxelManager>();
+
+        meshRenderer = GetComponent<MeshRenderer>();
+        meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.TwoSided;
+
         if (meshFilter == null)
         {
             meshFilter = GetComponent<MeshFilter>();
 
             mesh = new Mesh();
             mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+            mesh.MarkDynamic();
 
             meshFilter.sharedMesh = mesh;
         }
@@ -65,6 +79,9 @@ public class MeshManager : MonoBehaviour
 
         triangleData = new NativeArray<Triangle>(size * size * size * 5, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
         normalData = new NativeArray<Triangle>(size * size * size * 5, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+
+        triangleArray = triangleData.ToArray();
+        normalArray = normalData.ToArray();
     }
 
     void DisposeTriangleData()
@@ -105,27 +122,35 @@ public class MeshManager : MonoBehaviour
     {
         mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
 
-        var trianglesArray = triangleData.ToArray();
-        var normalsArray = normalData.ToArray();
+        meshDataPrepMarker.Begin();
+        triangleData.CopyTo(triangleArray);
+        normalData.CopyTo(normalArray);
+        meshDataPrepMarker.End();
 
         meshVertices.Clear();
         meshNormals.Clear();
         meshTriangles.Clear();
         vertexIdxDict.Clear();
 
-        for (int i = 0; i < trianglesArray.Length; i++)
+        for (int i = 0; i < triangleArray.Length; i++)
         {
-            if (trianglesArray[i].created)
+            if (triangleArray[i].created)
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    float3 vertex = trianglesArray[i][j];
-                    float3 normal = normalsArray[i][j];
+                    vertexLoopMarker.Begin();
+
+                    vertexDataRetrivalMarker.Begin();
+                    float3 vertex = triangleArray[i][j];
+                    float3 normal = normalArray[i][j];
+                    vertexDataRetrivalMarker.End();
 
                     bool removeDuplicateVerts = false;
 
                     if (removeDuplicateVerts) // removing duplicate verts is too expensive
                     {
+                        vertexAdditionMarker.Begin();
+
                         int sharedVertexIdx;
                         if (vertexIdxDict.TryGetValue(vertex, out sharedVertexIdx))
                         {
@@ -138,13 +163,21 @@ public class MeshManager : MonoBehaviour
                             meshTriangles.Add(meshVertices.Count - 1);
                             vertexIdxDict.Add(vertex, meshVertices.Count - 1);
                         }
+
+                        vertexAdditionMarker.End();
                     }
                     else
                     {
+                        vertexAdditionMarker.Begin();
+
                         meshVertices.Add(vertex);
                         meshNormals.Add(normal);
                         meshTriangles.Add(meshVertices.Count - 1);
+
+                        vertexAdditionMarker.End();
                     }
+
+                    vertexLoopMarker.End();
                 }
             }
         }

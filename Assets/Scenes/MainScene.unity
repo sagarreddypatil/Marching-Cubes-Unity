@@ -212,6 +212,7 @@ Transform:
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
@@ -309,6 +310,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 5, y: 6, z: 13}
   m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
@@ -409,6 +411,7 @@ Transform:
   m_LocalRotation: {x: 0.212135, y: 0.26930514, z: -0.06094274, w: 0.93742174}
   m_LocalPosition: {x: -0.30200872, y: 71.82242, z: -10.882005}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -457,6 +460,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
@@ -547,7 +551,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 145728962881683198, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
       propertyPath: scale
-      value: 0.025
+      value: 0.14
+      objectReference: {fileID: 0}
+    - target: {fileID: 145728962881683198, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
+      propertyPath: dimension
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 145728962881683198, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
+      propertyPath: lacunarity
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 145728962881683198, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
       propertyPath: noiseIntensity
@@ -556,6 +568,10 @@ PrefabInstance:
     - target: {fileID: 145728962881683199, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
       propertyPath: scale
       value: 0.625
+      objectReference: {fileID: 0}
+    - target: {fileID: 5637924635286943240, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
+      propertyPath: size
+      value: 32
       objectReference: {fileID: 0}
     - target: {fileID: 5637924635286943240, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
       propertyPath: continousUpdate
