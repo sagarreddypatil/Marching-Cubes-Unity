@@ -27,7 +27,7 @@ public class FractalSimplexNoise : VoxelJob
             noiseValues = voxelData
         };
 
-        return job.Schedule(voxelData.Length, resolution * resolution * resolution, dependsOn);
+        return job.Schedule(resolution * resolution * resolution, 8, dependsOn);
     }
 }
 
