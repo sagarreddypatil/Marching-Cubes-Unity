@@ -308,7 +308,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 935760671}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.31, y: 10, z: 1.48}
+  m_LocalPosition: {x: 0.51, y: 5.35, z: 0.53}
   m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -503,15 +503,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 145728962881683186, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.685
       objectReference: {fileID: 0}
     - target: {fileID: 145728962881683186, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5
+      value: -0.55
       objectReference: {fileID: 0}
     - target: {fileID: 145728962881683186, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1
+      value: -0.785
       objectReference: {fileID: 0}
     - target: {fileID: 145728962881683186, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
       propertyPath: m_LocalRotation.w
@@ -571,7 +571,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 145728962881683198, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
       propertyPath: voxelGenerationPipeline.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 145728962881683198, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
       propertyPath: chunkGenerationPipeline.Array.data[0]
@@ -581,6 +581,10 @@ PrefabInstance:
       propertyPath: voxelGenerationPipeline.Array.data[0]
       value: 
       objectReference: {fileID: 1695280694}
+    - target: {fileID: 145728962881683198, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
+      propertyPath: voxelGenerationPipeline.Array.data[1]
+      value: 
+      objectReference: {fileID: 1695280702}
     - target: {fileID: 145728962881683199, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
       propertyPath: scale
       value: 0.625
@@ -620,8 +624,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5b7aafaa7677bc44b60e472b4cb8527, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noiseScale: 0.15
   octaves: 8
   dimension: 2
   lacunarity: 2
   noiseIntensity: 0.2
+--- !u!114 &1695280702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1695280686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fd9029d2bf213e4aa07525f811eed13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

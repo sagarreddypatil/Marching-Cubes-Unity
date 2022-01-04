@@ -8,7 +8,7 @@ public class ChunkManager : MonoBehaviour
     public int resolution = 16;
     public float size = 10f;
 
-    public float scale
+    public float voxelSize
     {
         get {
             return size / resolution;

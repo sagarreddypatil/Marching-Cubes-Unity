@@ -26,7 +26,7 @@ public static class NoisePostProcess
 public struct FractalNoiseJob : IJobParallelFor
 {
     public float3 position;
-    public float voxelScale;
+    public float voxelSize;
     public float noiseScale;
 
     public int resolution;
@@ -50,7 +50,7 @@ public struct FractalNoiseJob : IJobParallelFor
         int z = tmpIdx % resolution;
 
         var intPos = new int3(x - 1, y - 1, z - 1);
-        float3 pos = (position + (float3)intPos * voxelScale) * noiseScale;
+        float3 pos = (position + (float3)intPos * voxelSize) * noiseScale;
 
         float output = 0;
         for (int i = 0; i < octaves; i++)

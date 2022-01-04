@@ -12,6 +12,7 @@ public class VoxelManager : MonoBehaviour
     public NativeArray<float> voxelData;
     private ChunkManager chunkManager;
 
+    public float noiseScale = 0.15f;
     public VoxelJob[] voxelGenerationPipeline;
 
     void Awake()
@@ -58,7 +59,8 @@ public class VoxelManager : MonoBehaviour
         job.voxelData = voxelData;
         job.position = transform.position; // TODO: Change this to local position if needed
         job.resolution = chunkManager.resolution + 3;
-        job.voxelScale = chunkManager.scale;
+        job.voxelSize = chunkManager.voxelSize;
+        job.noiseScale = noiseScale;
 
         return job.GenerateVoxels(dependsOn);
     }

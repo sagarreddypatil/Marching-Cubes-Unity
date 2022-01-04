@@ -99,7 +99,7 @@ public class MeshManager : MonoBehaviour
     {
         int resolution = chunkManager.resolution;
 
-        float scale = chunkManager.scale;
+        float scale = chunkManager.voxelSize;
 
         if (!triangleData.IsCreated)
         {
