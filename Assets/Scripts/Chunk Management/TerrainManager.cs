@@ -86,11 +86,11 @@ public class TerrainManager : MonoBehaviour
         chunk.meshManager.surfaceLevel = surfaceLevel * noiseIntensity;
         chunk.meshManager.smoothShading = smoothShading;
 
-        chunk.voxelManager.octaves = octaves;
-        chunk.voxelManager.dimension = dimension;
-        chunk.voxelManager.lacunarity = lacunarity;
-        chunk.voxelManager.scale = noiseScale;
-        chunk.voxelManager.noiseIntensity = noiseIntensity;
+        // chunk.voxelManager.octaves = octaves;
+        // chunk.voxelManager.dimension = dimension;
+        // chunk.voxelManager.lacunarity = lacunarity;
+        // chunk.voxelManager.scale = noiseScale;
+        // chunk.voxelManager.noiseIntensity = noiseIntensity;
     }
 
     void OnValidate()

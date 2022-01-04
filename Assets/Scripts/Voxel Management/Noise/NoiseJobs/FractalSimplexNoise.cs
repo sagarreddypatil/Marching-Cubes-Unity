@@ -13,10 +13,8 @@ public class FractalSimplexNoise : VoxelJob
     public float lacunarity = 2f;
     public float noiseIntensity = 0.2f;
 
-    public override JobHandle GenerateVoxels()
+    public override JobHandle GenerateVoxels(JobHandle dependsOn = default)
     {
-        int resolution = this.resolution + 3;
-
         var job = new FractalSimplexNoiseJob {
             position = position,
             voxelScale = voxelScale,
@@ -29,7 +27,7 @@ public class FractalSimplexNoise : VoxelJob
             noiseValues = voxelData
         };
 
-        return job.Schedule(voxelData.Length, resolution * resolution * resolution);
+        return job.Schedule(voxelData.Length, resolution * resolution * resolution, dependsOn);
     }
 }
 
@@ -69,6 +67,6 @@ struct FractalSimplexNoiseJob : IJobParallelFor
             output += noise.snoise(pos * math.exp2(math.max(0f, lacunarity) * i)) / math.exp2(math.max(0f, dimension) * i);
         }
 
-        noiseValues[idx] = NoisePostProcess.RidgedHorizontalLandscape(pos, output * noiseIntensity);
+        noiseValues[idx] = output * noiseIntensity;
     }
 }

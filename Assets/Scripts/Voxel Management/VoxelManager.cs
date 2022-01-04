@@ -8,16 +8,11 @@ using UnityEngine;
 
 public class VoxelManager : MonoBehaviour
 {
-    [Range(1, 16)]
-    public int octaves = 8;
-    public float dimension = 2f;
-    public float lacunarity = 2f;
-    public float scale = 0.25f;
-    public float noiseIntensity = 1f;
-
     [HideInInspector]
     public NativeArray<float> voxelData;
     private ChunkManager chunkManager;
+
+    public VoxelJob[] voxelGenerationPipeline;
 
     void Awake()
     {
@@ -58,6 +53,16 @@ public class VoxelManager : MonoBehaviour
         AllocateVoxelData();
     }
 
+    public JobHandle ApplyJob(VoxelJob job, JobHandle dependsOn = default)
+    {
+        job.voxelData = voxelData;
+        job.position = transform.position; // TODO: Change this to local position if needed
+        job.resolution = chunkManager.resolution + 3;
+        job.voxelScale = chunkManager.scale;
+
+        return job.GenerateVoxels(dependsOn);
+    }
+
     public JobHandle GenerateVoxels()
     {
         if (!voxelData.IsCreated)
@@ -72,19 +77,13 @@ public class VoxelManager : MonoBehaviour
             AllocateVoxelData();
         }
 
-        var job = new FractalNoiseJob {
-            position = transform.position,
-            voxelScale = chunkManager.scale,
-            noiseScale = scale,
-            noiseIntensity = noiseIntensity,
-            resolution = resolution,
-            octaves = octaves,
-            dimension = dimension,
-            lacunarity = lacunarity,
-            noiseValues = voxelData
-        };
+        JobHandle previousJob = default;
+        for (int i = 0; i < voxelGenerationPipeline.Length; i++)
+        {
+            VoxelJob job = voxelGenerationPipeline[i];
+            previousJob = ApplyJob(job, previousJob);
+        }
 
-        var handle = job.Schedule(resolution * resolution * resolution, 8);
-        return handle;
+        return previousJob;
     }
 }
