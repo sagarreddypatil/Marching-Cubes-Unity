@@ -430,7 +430,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boost: 3.5
   positionLerpTime: 0.2
-  mouseSensitivity: 10
+  mouseSensitivity: 1
   rotationLerpTime: 0.01
   invertY: 1
 --- !u!1 &1043335242
@@ -480,7 +480,7 @@ MonoBehaviour:
   gridSize: 10
   chunksPerFrame: 3
   chunkPrefab: {fileID: 145728962881683187, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
-  resolution: 32
+  resolution: 16
   size: 10
   continousUpdate: 0
   surfaceLevel: -0.4

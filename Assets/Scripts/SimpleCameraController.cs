@@ -190,7 +190,7 @@ public class SimpleCameraController : MonoBehaviour
         // Rotation
         if (IsCameraRotationAllowed())
         {
-            var mouseMovement = GetInputLookRotation() * Time.deltaTime * 5;
+            var mouseMovement = GetInputLookRotation();
             if (invertY)
                 mouseMovement.y = -mouseMovement.y;
 
