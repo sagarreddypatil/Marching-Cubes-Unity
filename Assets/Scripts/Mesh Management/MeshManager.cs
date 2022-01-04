@@ -197,32 +197,7 @@ public class MeshManager : MonoBehaviour
         else
             mesh.RecalculateNormals();
 
-        // for some weird reason the code below is slower than the code above, I haven't profiled it yet
-        // I think it's beacuse of allocating these massive arrays, but I'm too lazy to global allocate
-
-        // Vector3[] vertices = new Vector3[trianglesArray.Length * 3];
-        // Vector3[] normals = new Vector3[trianglesArray.Length * 3];
-        // int[] triangles = new int[trianglesArray.Length * 3];
-
-        // for (int i = 0; i < trianglesArray.Length; i++)
-        // {
-        //     for (int j = 0; j < 3; j++)
-        //     {
-        //         vertices[i * 3 + j] = triangleData[i][j];
-        //         normals[i * 3 + j] = normalData[i][j];
-        //         triangles[i * 3 + j] = i * 3 + j;
-        //     }
-        // }
-
-        // mesh.Clear();
-        // mesh.SetVertices(vertices);
-        // mesh.SetTriangles(triangles, 0, true);
-        // if (smoothShading)
-        //     mesh.SetNormals(normals);
-        // else
-        //     mesh.RecalculateNormals();
-
-        meshFilter.sharedMesh = mesh;
+        // meshFilter.sharedMesh = mesh; // don't need this line
         meshCollider.sharedMesh = mesh;
     }
 }

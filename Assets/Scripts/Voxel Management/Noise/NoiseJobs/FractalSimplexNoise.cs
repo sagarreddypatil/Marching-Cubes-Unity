@@ -1,29 +1,40 @@
+using UnityEngine;
 using Unity.Jobs;
-using Unity.Mathematics;
-using Unity.Burst;
 using Unity.Collections;
+using Unity.Burst;
+using Unity.Mathematics;
 
-[BurstCompatible]
-public static class NoisePostProcess
+public class FractalSimplexNoise : VoxelJob
 {
-    public static float HorizontalLandscape(float3 pos, float val)
-    {
-        return -pos.y + val;
-    }
+    public float noiseScale = 0.15f;
+    [Range(1, 16)]
+    public int octaves = 8;
+    public float dimension = 2f;
+    public float lacunarity = 2f;
+    public float noiseIntensity = 0.2f;
 
-    public static float RidgedHorizontalLandscape(float3 pos, float val)
+    public override JobHandle GenerateVoxels()
     {
-        return HorizontalLandscape(pos, math.abs(val));
-    }
+        int resolution = this.resolution + 3;
 
-    public static float Planet(float3 pos, float val, float radius)
-    {
-        return radius - math.length(pos) + val * 0.1f;
+        var job = new FractalSimplexNoiseJob {
+            position = position,
+            voxelScale = voxelScale,
+            noiseScale = noiseScale,
+            resolution = resolution,
+            octaves = octaves,
+            dimension = dimension,
+            lacunarity = lacunarity,
+            noiseIntensity = noiseIntensity,
+            noiseValues = voxelData
+        };
+
+        return job.Schedule(voxelData.Length, resolution * resolution * resolution);
     }
 }
 
 [BurstCompile]
-public struct FractalNoiseJob : IJobParallelFor
+struct FractalSimplexNoiseJob : IJobParallelFor
 {
     public float3 position;
     public float voxelScale;
