@@ -98,10 +98,16 @@ public class MeshManager : MonoBehaviour
     public JobHandle GenerateTriangles(JobHandle dependsOn = default)
     {
         int size = chunkManager.size;
+
         float scale = chunkManager.scale;
 
         if (!triangleData.IsCreated)
         {
+            AllocateTriangleData();
+        }
+        if (triangleData.Length != size * size * size * 5)
+        {
+            DisposeTriangleData();
             AllocateTriangleData();
         }
 

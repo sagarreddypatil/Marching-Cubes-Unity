@@ -58,6 +58,6 @@ public struct FractalNoiseJob : IJobParallelFor
             output += noise.snoise(pos * math.exp2(math.max(0f, lacunarity) * i)) / math.exp2(math.max(0f, dimension) * i);
         }
 
-        noiseValues[idx] = NoisePostProcess.HorizontalLandscape(pos, output * noiseIntensity);
+        noiseValues[idx] = NoisePostProcess.RidgedHorizontalLandscape(pos, output * noiseIntensity);
     }
 }

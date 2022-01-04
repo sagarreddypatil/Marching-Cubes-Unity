@@ -66,6 +66,12 @@ public class VoxelManager : MonoBehaviour
         }
 
         int voxelSize = chunkManager.size + 3;
+        if (voxelData.Length != voxelSize * voxelSize * voxelSize)
+        {
+            DisposeVoxelData();
+            AllocateVoxelData();
+        }
+
         var job = new FractalNoiseJob {
             position = transform.position,
             chunkScale = chunkManager.scale,
