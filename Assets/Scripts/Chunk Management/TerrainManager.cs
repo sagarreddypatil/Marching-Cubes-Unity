@@ -32,7 +32,7 @@ public class TerrainManager : MonoBehaviour
 
     float idxToFloat(int idx)
     {
-        return (float)idx * size - 0.5f * gridSize;
+        return (float)idx * size;
     }
 
     int idxId(int x, int y, int z)
@@ -52,6 +52,8 @@ public class TerrainManager : MonoBehaviour
                 {
                     Vector3 location = new Vector3(idxToFloat(x), idxToFloat(y), idxToFloat(z));
                     GameObject newChunk = Instantiate(chunkPrefab, location, Quaternion.identity, transform);
+                    newChunk.name = $"Chunk ({x}, {y}, {z})";
+
                     var chunk = new Chunk {
                         gameObject = newChunk,
                         meshManager = newChunk.GetComponent<MeshManager>(),

@@ -104,9 +104,9 @@ public struct MarchingCubesJob : IJobParallelFor
 
     float3 calculateNorm(int3 pos)
     {
-        float3 norm = new float3(getVoxelValue(pos + new int3(-1, 0, 0)) - getVoxelValue(pos + new int3(1, 0, 0)),
-                                 getVoxelValue(pos + new int3(0, -1, 0)) - getVoxelValue(pos + new int3(0, 1, 0)),
-                                 getVoxelValue(pos + new int3(0, 0, -1)) - getVoxelValue(pos + new int3(0, 0, 1)));
+        float3 norm = -1f * new float3(getVoxelValue(pos + new int3(1, 0, 0)) - getVoxelValue(pos + new int3(-1, 0, 0)),
+                                       getVoxelValue(pos + new int3(0, 1, 0)) - getVoxelValue(pos + new int3(0, -1, 0)),
+                                       getVoxelValue(pos + new int3(0, 0, 1)) - getVoxelValue(pos + new int3(0, 0, -1)));
 
         return math.normalize(norm);
     }
