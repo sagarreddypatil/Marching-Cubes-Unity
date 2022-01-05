@@ -443,13 +443,15 @@ GameObject:
   m_Component:
   - component: {fileID: 1043335243}
   - component: {fileID: 1043335244}
+  - component: {fileID: 1043335245}
+  - component: {fileID: 1043335246}
   m_Layer: 0
   m_Name: TerrainManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1043335243
 Transform:
   m_ObjectHideFlags: 0
@@ -485,11 +487,38 @@ MonoBehaviour:
   continousUpdate: 0
   surfaceLevel: -0.4
   smoothShading: 1
-  octaves: 12
-  dimension: 2.5
-  lacunarity: 2
   noiseScale: 0.025
+  voxelGenerationPipeline:
+  - {fileID: 1043335245}
+  - {fileID: 1043335246}
+--- !u!114 &1043335245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1043335242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5b7aafaa7677bc44b60e472b4cb8527, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  octaves: 8
+  dimension: 2
+  lacunarity: 2
   noiseIntensity: 0.2
+--- !u!114 &1043335246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1043335242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fd9029d2bf213e4aa07525f811eed13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1552596598
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -547,7 +576,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 145728962881683187, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 145728962881683198, guid: 9e20e7b0f345102fa8d961d7152b9251, type: 3}
       propertyPath: scale

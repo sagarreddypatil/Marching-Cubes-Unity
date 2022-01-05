@@ -20,12 +20,13 @@ public class MeshManager : MonoBehaviour
 
     private NativeArray<Triangle> triangleData;
     private NativeArray<Triangle> normalData;
+
     private Triangle[] triangleArray;
     private Triangle[] normalArray;
-    List<Vector3> meshVertices = new List<Vector3>();
-    List<Vector3> meshNormals = new List<Vector3>();
-    List<int> meshTriangles = new List<int>();
-    Dictionary<float3, int> vertexIdxDict = new Dictionary<float3, int>();
+
+    private Vector3[] vertices;
+    private Vector3[] normals;
+    private int[] triangles;
 
     private ChunkManager chunkManager;
     private VoxelManager voxelManager;
@@ -82,6 +83,10 @@ public class MeshManager : MonoBehaviour
 
         triangleArray = triangleData.ToArray();
         normalArray = normalData.ToArray();
+
+        vertices = new Vector3[size * size * size * 5 * 3];
+        normals = new Vector3[size * size * size * 5 * 3];
+        triangles = new int[size * size * size * 5 * 3];
     }
 
     void DisposeTriangleData()
@@ -91,8 +96,16 @@ public class MeshManager : MonoBehaviour
             triangleData.Dispose();
             normalData.Dispose();
         }
+
         triangleData = default;
         normalData = default;
+
+        triangleArray = null;
+        normalArray = null;
+
+        vertices = null;
+        normals = null;
+        triangles = null;
     }
 
     public JobHandle GenerateTriangles(JobHandle dependsOn = default)
@@ -133,10 +146,7 @@ public class MeshManager : MonoBehaviour
         normalData.CopyTo(normalArray);
         meshDataPrepMarker.End();
 
-        meshVertices.Clear();
-        meshNormals.Clear();
-        meshTriangles.Clear();
-        vertexIdxDict.Clear();
+        int vertexCounter = 0;
 
         for (int i = 0; i < triangleArray.Length; i++)
         {
@@ -146,42 +156,14 @@ public class MeshManager : MonoBehaviour
                 {
                     vertexLoopMarker.Begin();
 
-                    vertexDataRetrivalMarker.Begin();
                     float3 vertex = triangleArray[i][j];
                     float3 normal = normalArray[i][j];
-                    vertexDataRetrivalMarker.End();
 
-                    bool removeDuplicateVerts = false;
+                    vertices[vertexCounter] = vertex;
+                    normals[vertexCounter] = normal;
 
-                    if (removeDuplicateVerts) // removing duplicate verts is too expensive
-                    {
-                        vertexAdditionMarker.Begin();
-
-                        int sharedVertexIdx;
-                        if (vertexIdxDict.TryGetValue(vertex, out sharedVertexIdx))
-                        {
-                            meshTriangles.Add(sharedVertexIdx);
-                        }
-                        else
-                        {
-                            meshVertices.Add(vertex);
-                            meshNormals.Add(normal);
-                            meshTriangles.Add(meshVertices.Count - 1);
-                            vertexIdxDict.Add(vertex, meshVertices.Count - 1);
-                        }
-
-                        vertexAdditionMarker.End();
-                    }
-                    else
-                    {
-                        vertexAdditionMarker.Begin();
-
-                        meshVertices.Add(vertex);
-                        meshNormals.Add(normal);
-                        meshTriangles.Add(meshVertices.Count - 1);
-
-                        vertexAdditionMarker.End();
-                    }
+                    triangles[vertexCounter] = vertexCounter;
+                    vertexCounter += 1;
 
                     vertexLoopMarker.End();
                 }
@@ -190,14 +172,13 @@ public class MeshManager : MonoBehaviour
 
         mesh.Clear();
 
-        mesh.SetVertices(meshVertices);
-        mesh.SetTriangles(meshTriangles, 0, true);
+        mesh.SetVertices(vertices[0..vertexCounter]);
+        mesh.SetTriangles(triangles[0..vertexCounter], 0, true);
         if (smoothShading)
-            mesh.SetNormals(meshNormals);
+            mesh.SetNormals(normals[0..vertexCounter]);
         else
             mesh.RecalculateNormals();
 
-        // meshFilter.sharedMesh = mesh; // don't need this line
         meshCollider.sharedMesh = mesh;
     }
 }

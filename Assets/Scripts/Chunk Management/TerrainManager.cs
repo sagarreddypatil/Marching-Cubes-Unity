@@ -25,12 +25,8 @@ public class TerrainManager : MonoBehaviour
     public bool smoothShading = true;
 
     [Header("Noise Options")]
-    [Range(1, 16)]
-    public int octaves = 8;
-    public float dimension = 3f;
-    public float lacunarity = 1.5f;
     public float noiseScale = 1f;
-    public float noiseIntensity = 1f;
+    public VoxelJob[] voxelGenerationPipeline;
 
     private Chunk[] chunks;
 
@@ -83,14 +79,11 @@ public class TerrainManager : MonoBehaviour
         chunk.chunkManager.resolution = resolution;
         chunk.chunkManager.size = size;
 
-        chunk.meshManager.surfaceLevel = surfaceLevel * noiseIntensity;
+        chunk.meshManager.surfaceLevel = surfaceLevel;
         chunk.meshManager.smoothShading = smoothShading;
 
-        // chunk.voxelManager.octaves = octaves;
-        // chunk.voxelManager.dimension = dimension;
-        // chunk.voxelManager.lacunarity = lacunarity;
-        // chunk.voxelManager.scale = noiseScale;
-        // chunk.voxelManager.noiseIntensity = noiseIntensity;
+        chunk.voxelManager.noiseScale = noiseScale;
+        chunk.voxelManager.voxelGenerationPipeline = voxelGenerationPipeline;
     }
 
     void OnValidate()
