@@ -2,14 +2,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
 
+struct OctreeNode
+{
+    public int3 position;
+    public int depth;
+}
+
 public class OctreeManager : MonoBehaviour
 {
-    public GameObject octreeNodePrefab;
     private Transform player;
+
+    public GameObject octreeNodePrefab;
+    public float octreeStartSize = 100f;
     public float threshold = 0.4f;
     public float minSize = 1f;
-
-    private List<GameObject> allNodes = new List<GameObject>();
 
     void Start()
     {
@@ -17,14 +23,29 @@ public class OctreeManager : MonoBehaviour
     }
     void Update()
     {
-        if (Time.frameCount % 2 == 0)
-            return;
+        var finalNodes = new List<OctreeNode>();
 
-        foreach (GameObject node in allNodes)
+        var currentNodes = new List<OctreeNode>();
+        var nextNodes = new List<OctreeNode>();
+
+        currentNodes.Add(new OctreeNode { position = new int3(0, 0, 0), depth = 0 });
+
+        while (currentNodes.Count > 0)
         {
-            Destroy(node);
+            foreach (OctreeNode node in currentNodes)
+            {
+                float nodeSize = octreeStartSize / (1 << node.depth);
+                Vector3 nodeCenter = (float3)node.position * nodeSize;
+
+                if (Vector3.Distance(nodeCenter, player.position) < nodeSize * threshold && nodeSize > minSize)
+                {
+                    for (int i = 0; i < 8; i++)
+                    {
+                        Vector3 newNodePos = // TODO: Figure out how tf to index the nodes with integers
+                    }
+                }
+            }
         }
-        allNodes.Clear();
 
         GameObject rootNode = Instantiate(octreeNodePrefab, new Vector3(-50f, -50f, -50f), Quaternion.identity, transform);
         rootNode.name = "Root";
