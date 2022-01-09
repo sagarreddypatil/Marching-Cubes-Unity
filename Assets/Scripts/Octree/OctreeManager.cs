@@ -4,23 +4,78 @@ using Unity.Mathematics;
 
 struct OctreeNode
 {
-    public int3 position;
+    public byte[] idx;
     public int depth;
+    public string name
+    {
+        get {
+            string output = "0-";
+            for (int i = 0; i < depth; i++)
+            {
+                output += idx[i] + "-";
+            }
+            return output.Substring(0, output.Length - 1);
+        }
+    }
+
+    public static float getSizeAtDepth(float startSize, int depth)
+    {
+        return startSize / (1 << depth);
+    }
+
+    public float getSize(float startSize)
+    {
+        return getSizeAtDepth(startSize, depth);
+    }
+
+    public float3 calculatePosition(float startSize) // calculates the position the bottom left corner
+    {
+        float3 center = new float3(0, 0, 0);
+        for (int i = 0; i < depth; i++)
+        {
+            center += new float3(idx[i] % 2, idx[i] / 2 % 2, idx[i] / 4 % 2) * getSizeAtDepth(startSize, i) / 2;
+        }
+        return center;
+    }
+
+    public float3 calculateCenter(float startSize)
+    {
+        return calculatePosition(startSize) + getSize(startSize) / 2;
+    }
+
+    public OctreeNode getNextNode(byte nextIdx)
+    {
+        byte[] newIdx = new byte[depth + 1];
+        for (int i = 0; i < depth; i++)
+        {
+            newIdx[i] = idx[i];
+        }
+        newIdx[depth] = nextIdx;
+        return new OctreeNode() { idx = newIdx, depth = depth + 1 };
+    }
+
+    public static OctreeNode getRootNode()
+    {
+        return new OctreeNode() { idx = new byte[0], depth = 0 };
+    }
 }
 
 public class OctreeManager : MonoBehaviour
 {
     private Transform player;
+    private List<GameObject> spawnedNodes;
 
     public GameObject octreeNodePrefab;
-    public float octreeStartSize = 100f;
+    public float startSize = 100f;
     public float threshold = 0.4f;
     public float minSize = 1f;
 
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
+        spawnedNodes = new List<GameObject>();
     }
+
     void Update()
     {
         var finalNodes = new List<OctreeNode>();
@@ -28,61 +83,66 @@ public class OctreeManager : MonoBehaviour
         var currentNodes = new List<OctreeNode>();
         var nextNodes = new List<OctreeNode>();
 
-        currentNodes.Add(new OctreeNode { position = new int3(0, 0, 0), depth = 0 });
+        currentNodes.Add(OctreeNode.getRootNode());
 
         while (currentNodes.Count > 0)
         {
             foreach (OctreeNode node in currentNodes)
             {
-                float nodeSize = octreeStartSize / (1 << node.depth);
-                Vector3 nodeCenter = (float3)node.position * nodeSize;
+                float nodeSize = node.getSize(startSize);
+                float3 nodeCenter = node.calculateCenter(startSize) + (float3)transform.position;
 
-                if (Vector3.Distance(nodeCenter, player.position) < nodeSize * threshold && nodeSize > minSize)
+                if (math.distancesq(nodeCenter, player.position) < math.pow(nodeSize * threshold, 2) && nodeSize / 2 > minSize)
                 {
-                    for (int i = 0; i < 8; i++)
+                    for (byte i = 0; i < 8; i++)
                     {
-                        Vector3 newNodePos = // TODO: Figure out how tf to index the nodes with integers
+                        nextNodes.Add(node.getNextNode(i));
                     }
                 }
+                else
+                {
+                    finalNodes.Add(node);
+                }
+            }
+            currentNodes = nextNodes;
+            nextNodes = new List<OctreeNode>();
+        }
+
+        var finalNodeNames = new List<string>();
+        foreach (OctreeNode node in finalNodes)
+        {
+            finalNodeNames.Add(node.name);
+        }
+
+        for (int i = 0; i < spawnedNodes.Count; i++)
+        {
+            GameObject spawnedNode = spawnedNodes[i];
+
+            int idx = finalNodeNames.IndexOf(spawnedNode.name);
+
+            if (idx == -1)
+            {
+                // Destroy(spawnedNode);
+                spawnedNode.SetActive(false);
+                spawnedNodes.RemoveAt(i);
+            }
+            else
+            {
+                spawnedNode.SetActive(true);
+                finalNodeNames.RemoveAt(idx);
+                finalNodes.RemoveAt(idx);
             }
         }
 
-        GameObject rootNode = Instantiate(octreeNodePrefab, new Vector3(-50f, -50f, -50f), Quaternion.identity, transform);
-        rootNode.name = "Root";
-        rootNode.GetComponent<OctreeNode>().size = 100f;
-
-        List<GameObject> nodes = new List<GameObject>();
-        List<GameObject> nextNodes = new List<GameObject>();
-
-        nodes.Add(rootNode);
-        allNodes.Add(rootNode);
-
-        while (nodes.Count != 0)
+        foreach (OctreeNode node in finalNodes)
         {
-            foreach (GameObject node in nodes)
-            {
-                OctreeNode currNode = node.GetComponent<OctreeNode>();
-                Vector3 nodeCenter = node.transform.position + new Vector3(1, 1, 1) * currNode.size / 2;
+            GameObject spawnedNode = Instantiate(octreeNodePrefab, node.calculatePosition(startSize) + (float3)transform.position, Quaternion.identity, transform);
+            spawnedNode.name = node.name;
 
-                if (Vector3.Distance(nodeCenter, player.position) < currNode.size * threshold)
-                {
-                    if (currNode.size >= 2 * minSize)
-                    {
-                        for (int i = 0; i < 8; i++)
-                        {
-                            Vector3 childPos = new Vector3(i % 2, i / 2 % 2, i / 4 % 2) * currNode.size / 2;
-                            GameObject newNode = Instantiate(octreeNodePrefab, node.transform.position + childPos, Quaternion.identity, node.transform);
-                            newNode.name = "Node " + i;
-                            newNode.GetComponent<OctreeNode>().size = currNode.size / 2;
-                            nextNodes.Add(newNode);
-                            allNodes.Add(newNode);
-                        }
-                    }
-                }
-            }
+            BoxOutline boxOutline = spawnedNode.GetComponent<BoxOutline>();
+            boxOutline.size = node.getSize(startSize);
 
-            nodes = nextNodes;
-            nextNodes = new List<GameObject>();
+            spawnedNodes.Add(spawnedNode);
         }
     }
 }

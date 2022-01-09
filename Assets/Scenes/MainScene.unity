@@ -478,7 +478,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   octreeNodePrefab: {fileID: 1740362438343659172, guid: 419e6390dc8df1a43ab8958f1f058bf1, type: 3}
+  startSize: 100
   threshold: 1
+  minSize: 1
 --- !u!1 &1043335242
 GameObject:
   m_ObjectHideFlags: 0
@@ -739,7 +741,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1821165391}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -23.1, y: 0, z: -30.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
