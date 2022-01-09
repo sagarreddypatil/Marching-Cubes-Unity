@@ -477,7 +477,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bce17f279ac725e4bbf1b8875e37fa40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  octreeNodePrefab: {fileID: 1740362438343659172, guid: 419e6390dc8df1a43ab8958f1f058bf1, type: 3}
+  octreeNodePrefab: {fileID: 7324530571053046998, guid: cba9c8dcceb3b56f08bf2148ee196b56, type: 3}
   startSize: 100
   threshold: 1
   minSize: 1
