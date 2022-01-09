@@ -3,6 +3,7 @@ using UnityEngine;
 using Unity.Mathematics;
 using Unity.Profiling;
 
+[RequireComponent(typeof(OctreeGenerator))]
 public class OctreeManager : MonoBehaviour
 {
     private Transform player;
@@ -10,29 +11,20 @@ public class OctreeManager : MonoBehaviour
     private OctreeGenerator octreeGenerator;
 
     public GameObject octreeNodePrefab;
-    public float startSize = 100f;
-    public float threshold = 0.4f;
-    public float minSize = 1f;
 
     public ProfilerMarker recordNames = new ProfilerMarker("RecordNames");
     public ProfilerMarker checkExisting = new ProfilerMarker("CheckExisting");
     public ProfilerMarker createNew = new ProfilerMarker("CreateNew");
 
-    void Start()
+    void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
-        spawnedNodes = new List<GameObject>();
-        octreeGenerator = new OctreeGenerator(startSize, threshold, minSize);
+        octreeGenerator = GetComponent<OctreeGenerator>();
     }
 
-    void OnValidate()
+    void Start()
     {
-        if (octreeGenerator != null)
-        {
-            octreeGenerator.startSize = startSize;
-            octreeGenerator.threshold = threshold;
-            octreeGenerator.minSize = minSize;
-        }
+        spawnedNodes = new List<GameObject>();
     }
 
     void Update()
@@ -72,9 +64,9 @@ public class OctreeManager : MonoBehaviour
         createNew.Begin();
         foreach (OctreeNode node in finalNodes)
         {
-            GameObject spawnedNode = Instantiate(octreeNodePrefab, node.calculateCenter(startSize) + (float3)transform.position, Quaternion.identity, transform);
+            GameObject spawnedNode = Instantiate(octreeNodePrefab, node.calculatePosition(octreeGenerator.startSize) + (float3)transform.position, Quaternion.identity, transform);
             spawnedNode.name = node.name;
-            spawnedNode.transform.localScale = new float3(1, 1, 1) * node.getSize(startSize);
+            spawnedNode.GetComponent<BoxOutline>().size = node.getSize(octreeGenerator.startSize);
             spawnedNodes.Add(spawnedNode);
         }
         createNew.End();
