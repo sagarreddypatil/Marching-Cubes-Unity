@@ -29,13 +29,20 @@ public class OctreeManager : MonoBehaviour
 
     void Update()
     {
-        List<OctreeNode> finalNodes = octreeGenerator.generate(player.position - transform.position);
+        var finalNodes = octreeGenerator.generate(player.position - transform.position);
+        var nodes = new Dictionary<ulong, OctreeNode>();
 
         recordNames.Begin();
-        var finalNodeNames = new List<string>();
         foreach (OctreeNode node in finalNodes)
         {
-            finalNodeNames.Add(node.name);
+            try
+            {
+                nodes.Add(node.name, node);
+            }
+            catch (System.Exception)
+            {
+                Debug.Log("Duplicate node: " + node.name);
+            }
         }
         recordNames.End();
 
@@ -43,30 +50,30 @@ public class OctreeManager : MonoBehaviour
         for (int i = 0; i < spawnedNodes.Count; i++)
         {
             GameObject spawnedNode = spawnedNodes[i];
-
-            int idx = finalNodeNames.IndexOf(spawnedNode.name);
-
-            if (idx == -1)
+            ulong name = ulong.Parse(spawnedNode.name);
+            if (nodes.ContainsKey(name))
             {
-                // Destroy(spawnedNode);
-                spawnedNode.SetActive(false);
-                spawnedNodes.RemoveAt(i);
+                nodes.Remove(name);
             }
             else
             {
-                spawnedNode.SetActive(true);
-                finalNodeNames.RemoveAt(idx);
-                finalNodes.RemoveAt(idx);
+                Destroy(spawnedNode);
+                spawnedNodes.RemoveAt(i);
+                i--;
             }
         }
         checkExisting.End();
 
         createNew.Begin();
-        foreach (OctreeNode node in finalNodes)
+        foreach (OctreeNode node in nodes.Values)
         {
             GameObject spawnedNode = Instantiate(octreeNodePrefab, node.calculatePosition(octreeGenerator.startSize) + (float3)transform.position, Quaternion.identity, transform);
-            spawnedNode.name = node.name;
-            spawnedNode.GetComponent<BoxOutline>().size = node.getSize(octreeGenerator.startSize);
+            spawnedNode.name = node.name.ToString();
+
+            var boxOutline = spawnedNode.GetComponent<BoxOutline>();
+            boxOutline.size = node.getSize(octreeGenerator.startSize);
+            boxOutline.depth = node.depth;
+
             spawnedNodes.Add(spawnedNode);
         }
         createNew.End();

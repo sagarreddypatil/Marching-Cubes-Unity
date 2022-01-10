@@ -1,20 +1,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
+using System.Text;
 
 public struct OctreeNode
 {
     public byte[] idx;
     public int depth;
-    public string name
+    public ulong name
     {
         get {
-            string output = "0-";
-            for (int i = 0; i < depth; i++)
+            if (idx.Length == 0)
+                return 0;
+
+            ulong id = (byte)(idx[0] + 1);
+            for (int i = 1; i < idx.Length; i++)
             {
-                output += idx[i] + "-";
+                id = id << 4 | (byte)(idx[i] + 1);
             }
-            return output.Substring(0, output.Length - 1);
+            return id;
         }
     }
 

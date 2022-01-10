@@ -1,4 +1,6 @@
 using UnityEngine;
+using Unity.Mathematics;
+using System.Collections.Generic;
 
 struct Chunk
 {
@@ -8,6 +10,7 @@ struct Chunk
     public ChunkManager chunkManager;
 }
 
+[RequireComponent(typeof(OctreeGenerator))]
 public class TerrainManager : MonoBehaviour
 {
     [Header("Terrain Options")]
@@ -28,7 +31,9 @@ public class TerrainManager : MonoBehaviour
     public float noiseScale = 1f;
     public VoxelJob[] voxelGenerationPipeline;
 
-    private Chunk[] chunks;
+    private List<Chunk> chunks;
+    private OctreeGenerator octreeGenerator;
+    private Transform player;
 
     float idxToFloat(int idx)
     {
@@ -40,10 +45,18 @@ public class TerrainManager : MonoBehaviour
         return x + y * gridSize + z * gridSize * gridSize;
     }
 
+    void Awake()
+    {
+        octreeGenerator = GetComponent<OctreeGenerator>();
+        player = GameObject.FindGameObjectWithTag("Player").transform;
+    }
+
     void Start()
     {
+        chunks = new List<Chunk>();
+
         int counter = 0;
-        chunks = new Chunk[gridSize * gridSize * gridSize];
+
         for (int x = 0; x < gridSize; x++)
         {
             for (int y = 0; y < gridSize; y++)
@@ -75,6 +88,11 @@ public class TerrainManager : MonoBehaviour
         }
     }
 
+    void GenerateOctreeChunks()
+    {
+        var nodes = octreeGenerator.generate(player.position - transform.position);
+    }
+
     void SetChunkProperties(Chunk chunk)
     {
         chunk.chunkManager.continousUpdate = continousUpdate;
@@ -92,13 +110,13 @@ public class TerrainManager : MonoBehaviour
     {
         if (chunks != null)
         {
-            for (int i = 0; i < chunks.Length; i++)
+            for (int i = 0; i < chunks.Count; i++)
             {
                 Chunk chunk = chunks[i];
                 if (chunk.gameObject != null)
                 {
                     SetChunkProperties(chunk);
-                    chunk.chunkManager.rebuildOnUpdateCount = chunks.Length / chunksPerFrame;
+                    chunk.chunkManager.rebuildOnUpdateCount = chunks.Count / chunksPerFrame;
                     chunk.chunkManager.rebuildOnUpdate = i / chunksPerFrame;
                 }
             }

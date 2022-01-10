@@ -5,6 +5,7 @@ using UnityEngine;
 public class BoxOutline : MonoBehaviour
 {
     public float size = 1f;
+    public int depth = 0;
 
     void Start()
     {
@@ -17,7 +18,10 @@ public class BoxOutline : MonoBehaviour
 
     void DrawBox()
     {
-        Color boxColor = size > 0 ? Color.green : Color.red;
+        // generate color hue based on size
+        Random.InitState(depth);
+        float hue = Random.value;
+        Color boxColor = Color.HSVToRGB(hue, 1, 1);
 
         Debug.DrawLine(transform.position + new Vector3(0, 0, 0), transform.position + new Vector3(size, 0, 0), boxColor, 0f, true);
         Debug.DrawLine(transform.position + new Vector3(size, 0, 0), transform.position + new Vector3(size, size, 0), boxColor, 0f, true);
