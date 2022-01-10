@@ -54,6 +54,6 @@ struct LandscapeProcessorJob : IJobParallelFor
 
     private float RidgedHorizontalLandscape(float3 pos, float val)
     {
-        return HorizontalLandscape(pos, math.abs(val));
+        return HorizontalLandscape(pos, 1 - math.abs(val));
     }
 }

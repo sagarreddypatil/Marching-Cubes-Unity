@@ -22,9 +22,9 @@ public class OctreeGenerator : MonoBehaviour
             foreach (OctreeNode node in currentNodes)
             {
                 float nodeSize = node.getSize(startSize);
-                float3 nodeCenter = node.calculateCenter(startSize);
+                float3 nodeCenter = node.getCenter(startSize);
 
-                if (math.distancesq(nodeCenter, relativeTargetPosition) < math.pow(nodeSize * threshold, 2) && nodeSize / 2 > minSize)
+                if (math.exp(math.distance(nodeCenter, relativeTargetPosition) / nodeSize) < threshold && nodeSize / 2 > minSize)
                 {
                     for (byte i = 0; i < 8; i++)
                     {

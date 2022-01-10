@@ -37,11 +37,11 @@ public class OctreeManager : MonoBehaviour
         {
             try
             {
-                nodes.Add(node.name, node);
+                nodes.Add(node.id, node);
             }
             catch (System.Exception)
             {
-                Debug.Log("Duplicate node: " + node.name);
+                Debug.Log("Duplicate node: " + node.id);
             }
         }
         recordNames.End();
@@ -67,8 +67,8 @@ public class OctreeManager : MonoBehaviour
         createNew.Begin();
         foreach (OctreeNode node in nodes.Values)
         {
-            GameObject spawnedNode = Instantiate(octreeNodePrefab, node.calculatePosition(octreeGenerator.startSize) + (float3)transform.position, Quaternion.identity, transform);
-            spawnedNode.name = node.name.ToString();
+            GameObject spawnedNode = Instantiate(octreeNodePrefab, node.getPosition(octreeGenerator.startSize) + (float3)transform.position, Quaternion.identity, transform);
+            spawnedNode.name = node.id.ToString();
 
             var boxOutline = spawnedNode.GetComponent<BoxOutline>();
             boxOutline.size = node.getSize(octreeGenerator.startSize);

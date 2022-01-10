@@ -58,6 +58,8 @@ public class ChunkManager : MonoBehaviour
 
     void DrawBox()
     {
+        return;
+
         Color boxColor = size > 0 ? Color.green : Color.red;
 
         Debug.DrawLine(transform.position + new Vector3(0, 0, 0), transform.position + new Vector3(size, 0, 0), boxColor);

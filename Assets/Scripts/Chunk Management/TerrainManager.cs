@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 struct Chunk
 {
+    public OctreeNode octreeNode;
     public GameObject gameObject;
     public MeshManager meshManager;
     public VoxelManager voxelManager;
@@ -14,9 +15,9 @@ struct Chunk
 public class TerrainManager : MonoBehaviour
 {
     [Header("Terrain Options")]
-    public int gridSize = 3;
     public int chunksPerFrame = 1;
     public GameObject chunkPrefab;
+    public int numChunks;
 
     [Header("Chunk Options")]
     public int resolution = 16;
@@ -35,57 +36,65 @@ public class TerrainManager : MonoBehaviour
     private OctreeGenerator octreeGenerator;
     private Transform player;
 
-    float idxToFloat(int idx)
-    {
-        return (float)idx * size;
-    }
-
-    int idxId(int x, int y, int z)
-    {
-        return x + y * gridSize + z * gridSize * gridSize;
-    }
-
     void Awake()
     {
         octreeGenerator = GetComponent<OctreeGenerator>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
+        chunks = new List<Chunk>();
     }
 
-    void Start()
+    void Update()
     {
-        chunks = new List<Chunk>();
+        var finalNodes = octreeGenerator.generate(player.position - transform.position);
+        var nodes = new Dictionary<ulong, OctreeNode>();
 
-        int counter = 0;
-
-        for (int x = 0; x < gridSize; x++)
+        foreach (OctreeNode node in finalNodes)
         {
-            for (int y = 0; y < gridSize; y++)
+            nodes.Add(node.id, node);
+        }
+
+        for (int i = 0; i < chunks.Count; i++)
+        {
+            var chunk = chunks[i];
+            var id = chunk.octreeNode.id;
+
+            if (nodes.ContainsKey(id))
             {
-                for (int z = 0; z < gridSize; z++)
-                {
-                    Vector3 location = new Vector3(idxToFloat(x), idxToFloat(y), idxToFloat(z));
-                    GameObject newChunk = Instantiate(chunkPrefab, location, Quaternion.identity, transform);
-                    newChunk.name = $"Chunk ({x}, {y}, {z})";
-
-                    var chunk = new Chunk {
-                        gameObject = newChunk,
-                        meshManager = newChunk.GetComponent<MeshManager>(),
-                        voxelManager = newChunk.GetComponent<VoxelManager>(),
-                        chunkManager = newChunk.GetComponent<ChunkManager>()
-                    };
-
-                    SetChunkProperties(chunk);
-
-                    chunk.chunkManager.rebuildOnUpdateCount = gridSize * gridSize * gridSize / chunksPerFrame;
-                    chunk.chunkManager.rebuildOnUpdate = counter / chunksPerFrame;
-                    chunk.gameObject.SetActive(true);
-
-                    chunks[idxId(x, y, z)] = chunk;
-
-                    counter++;
-                }
+                nodes.Remove(id);
+            }
+            else
+            {
+                Destroy(chunk.gameObject);
+                chunks.RemoveAt(i);
+                i--;
             }
         }
+
+        int counter = 0;
+        foreach (var node in nodes.Values)
+        {
+            Vector3 location = node.getPosition(octreeGenerator.startSize) + (float3)transform.position;
+            GameObject newChunk = Instantiate(chunkPrefab, location, Quaternion.identity, transform);
+
+            var chunk = new Chunk {
+                octreeNode = node,
+                gameObject = newChunk,
+                meshManager = newChunk.GetComponent<MeshManager>(),
+                voxelManager = newChunk.GetComponent<VoxelManager>(),
+                chunkManager = newChunk.GetComponent<ChunkManager>()
+            };
+
+            SetChunkProperties(chunk);
+
+            chunk.chunkManager.rebuildOnUpdateCount = nodes.Count;
+            chunk.chunkManager.rebuildOnUpdate = counter / chunksPerFrame;
+            chunk.gameObject.SetActive(true);
+
+            chunks.Add(chunk);
+            counter++;
+        }
+
+        numChunks = chunks.Count;
     }
 
     void GenerateOctreeChunks()
@@ -95,9 +104,11 @@ public class TerrainManager : MonoBehaviour
 
     void SetChunkProperties(Chunk chunk)
     {
+        chunk.gameObject.name = chunk.octreeNode.id.ToString();
+
         chunk.chunkManager.continousUpdate = continousUpdate;
         chunk.chunkManager.resolution = resolution;
-        chunk.chunkManager.size = size;
+        chunk.chunkManager.size = chunk.octreeNode.getSize(octreeGenerator.startSize);
 
         chunk.meshManager.surfaceLevel = surfaceLevel;
         chunk.meshManager.smoothShading = smoothShading;
@@ -121,9 +132,5 @@ public class TerrainManager : MonoBehaviour
                 }
             }
         }
-    }
-
-    void Update()
-    {
     }
 }
